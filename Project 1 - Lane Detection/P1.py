@@ -104,7 +104,7 @@ def process_image(img):
     gray = grayscale(img)
     
     # Define a kernel size and apply Gaussian smoothing
-    kernel_size = 11
+    kernel_size = 21
     blur_gray = gaussian_blur(img, kernel_size)
     
     # Define our parameters for Canny and apply
@@ -118,17 +118,17 @@ def process_image(img):
     
     # We define a triangle for our polygon mask
     imshape = img.shape
-    vertices = np.array([[(0,imshape[0]),(imshape[1]/2, imshape[0]/1.9), (imshape[1],imshape[0])]], dtype=np.int32)
+    vertices = np.array([[(0,imshape[0]),(imshape[1]/2, imshape[0]/1.7), (imshape[1],imshape[0])]], dtype=np.int32)
     
     masked_edges = region_of_interest(edges, vertices)
     
     # Define the Hough transform parameters
     # Make a blank the same size as our image to draw on
-    rho = 5 # distance resolution in pixels of the Hough grid
-    theta = np.pi/90 # angular resolution in radians of the Hough grid
-    threshold = 50     # minimum number of votes (intersections in Hough grid cell)
-    min_line_len = 10 #minimum number of pixels making up a line
-    max_line_gap = 1    # maximum gap in pixels between connectable line segments
+    rho = 30 # distance resolution in pixels of the Hough grid
+    theta = np.pi/80 # angular resolution in radians of the Hough grid
+    threshold = 100     # minimum number of votes (intersections in Hough grid cell)
+    min_line_len = 6 #minimum number of pixels making up a line
+    max_line_gap = 3    # maximum gap in pixels between connectable line segments
     
     # Run Hough on edge detected image
     line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap)
@@ -150,15 +150,22 @@ def process_image(img):
 # strImage = 'test_images/solidYellowCurve.jpg'
 # strImage = 'test_images/solidYellowCurve2.jpg'
 # strImage = 'test_images/solidYellowLeft.jpg'
-strImage = 'test_images/whiteCarLaneSwitch.jpg'
+# strImage = 'test_images/whiteCarLaneSwitch.jpg'
 
 # img = mpimg.imread(strImage)
-
 # marked_lane = process_image(img)
+# plt.imshow(marked_lane)
+
+yellow_output = 'yellow.mp4'
+clip1 = VideoFileClip("solidYellowLeft.mp4")
+
+yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+yellow_clip.write_videofile(yellow_output, audio=False)
 
 white_output = 'white.mp4'
-clip1 = VideoFileClip("solidWhiteRight.mp4")
-white_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+clip2 = VideoFileClip("solidWhiteRight.mp4")
+
+white_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
 white_clip.write_videofile(white_output, audio=False)
 
 
