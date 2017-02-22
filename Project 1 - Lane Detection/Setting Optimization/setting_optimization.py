@@ -71,6 +71,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
     draw_lines(line_img, lines, y_max)
+
     return line_img
 
 # Python 3 has support for cool math symbols.
@@ -218,16 +219,14 @@ def check_result(design_vars):
     min_line_len = int(design_vars[6])
     max_line_gap = int(design_vars[7])
     
-    # strImage = 'test_images/solidWHiteCurve.jpg'
-    strImage = 'test_images/solidYellowCurve.jpg'
-    img = mpimg.imread(strImage)
+    strImage = ["test_images/" + x for x in os.listdir("test_images/")]
+    strDesired = ["desired_images/" + x for x in os.listdir("test_images/")]
     
+    i = 4;
+    
+    img = mpimg.imread(strImage[i])
     marked_lane = process_image(img, kernel_size, low_threshold, high_threshold, rho, theta, threshold, min_line_len, max_line_gap)
-
-    # img_desired = mpimg.imread('desired_images/solidWhiteCurve.jpg')
-    img_desired = mpimg.imread('desired_images/solidYellowCurve.jpg')
-    
-    compare_images(marked_lane, img_desired, '')
+    compare_images(marked_lane, mpimg.imread(strDesired[i]), '')
 
 ## Main Script
 
@@ -238,4 +237,4 @@ def check_result(design_vars):
 # 
 # check_result([  25.3505928 ,  317.14373338,  634.16902284,    2.03785962, 0.81923436,   10.06286094,    3.1415375 ,    2.19538521])
 
-check_result([  13.09649606,  398.72353721,  440.9686785 ,   32.40260194,1.00289257,   71.03378289,    7.45134749,    2.00426936])
+check_result([  13,  200,  400 ,   32, .0001,   71,    20,    10])

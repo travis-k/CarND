@@ -53,7 +53,7 @@ def region_of_interest(img, vertices):
     return masked_image
 
 
-def draw_lines(img, lines, y_max, color=[255, 0, 0], thickness=20):
+def draw_lines(img, lines, y_max, x_max, color=[255, 0, 0], thickness=20):
     """
     NOTE: this is the function you might want to use as a starting point once you want to 
     average/extrapolate the line segments you detect to map out the full
@@ -74,34 +74,42 @@ def draw_lines(img, lines, y_max, color=[255, 0, 0], thickness=20):
     slopes = (lines[:,0,3]-lines[:,0,1])/(lines[:,0,2] - lines[:,0,0])
     lengths = sqrt((lines[:,0,3]-lines[:,0,1])**2 + (lines[:,0,2] - lines[:,0,0])**2)
     
-    left_side = (slopes > 0) 
-    right_side = (slopes < 0)
+    left_side = np.logical_and(slopes > 0, lengths > 0.01)
+    offside = np.logical_or(lines[:,0,0] < x_max/2, lines[:,0,2] < x_max/2)
+    left_side[offside] = False
     
-    slope_left = np.average(slopes[left_side], weights=lengths[left_side])
-    slope_right = np.average(slopes[right_side], weights=lengths[right_side])
+    right_side = np.logical_and(slopes < 0, lengths > 0.01)
+    offside = np.logical_or(lines[:,0,0] > x_max/2, lines[:,0,2] > x_max/2)
+    right_side[offside] = False
     
-    x_mid_left = np.average(vstack((lines[left_side,0,0],lines[left_side,0,2])))
-    y_mid_left = np.average(vstack((lines[left_side,0,1],lines[left_side,0,3])))
     
-    x_mid_right = np.average(vstack((lines[right_side,0,0],lines[right_side,0,2])))
-    y_mid_right = np.average(vstack((lines[right_side,0,1],lines[right_side,0,3])))
-    
-    x_lower_left = ((y_max - y_mid_left)/slope_left) + x_mid_left
-    x_lower_right = ((y_max - y_mid_right)/slope_right) + x_mid_right
-    
-    y_height = y_max/1.5;
-    
-    x_upper_left = ((y_height - y_mid_left)/slope_left) + x_mid_left
-    x_upper_right = ((y_height - y_mid_right)/slope_right) + x_mid_right
-    
-    cv2.line(img, (int(x_lower_left), y_max), (int(x_upper_left), int(y_height)), color, thickness)
-    cv2.line(img, (int(x_lower_right), y_max), (int(x_upper_right), int(y_height)), color, thickness) 
+    if len(lengths[left_side]) > 0 and len(lengths[right_side]) > 0:
+
+        slope_left = np.average(slopes[left_side], weights=lengths[left_side])
+        slope_right = np.average(slopes[right_side], weights=lengths[right_side])
+        
+        x_mid_left = np.average(vstack((lines[left_side,0,0],lines[left_side,0,2])), weights=vstack((lengths[left_side],lengths[left_side])))
+        y_mid_left = np.average(vstack((lines[left_side,0,1],lines[left_side,0,3])), weights=vstack((lengths[left_side],lengths[left_side])))
+        
+        x_mid_right = np.average(vstack((lines[right_side,0,0],lines[right_side,0,2])), weights=vstack((lengths[right_side],lengths[right_side])))
+        y_mid_right = np.average(vstack((lines[right_side,0,1],lines[right_side,0,3])), weights=vstack((lengths[right_side],lengths[right_side])))
+        
+        x_lower_left = ((y_max - y_mid_left)/slope_left) + x_mid_left
+        x_lower_right = ((y_max - y_mid_right)/slope_right) + x_mid_right
+        
+        y_height = y_max/1.6;
+        
+        x_upper_left = ((y_height - y_mid_left)/slope_left) + x_mid_left
+        x_upper_right = ((y_height - y_mid_right)/slope_right) + x_mid_right
+        
+        cv2.line(img, (int(x_lower_left), y_max), (int(x_upper_left), int(y_height)), color, thickness)
+        cv2.line(img, (int(x_lower_right), y_max), (int(x_upper_right), int(y_height)), color, thickness) 
 
     # for line in lines:
     #     for x1,y1,x2,y2 in line:
     #         cv2.line(img, (x1, y1), (x2, y2), color, thickness)
 
-def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
+def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max, x_max):
     """
     `img` should be the output of a Canny transform.
         
@@ -109,7 +117,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
     """
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
-    draw_lines(line_img, lines, y_max)
+    draw_lines(line_img, lines, y_max, x_max)
     return line_img
 
 # Python 3 has support for cool math symbols.
@@ -133,10 +141,13 @@ def process_image(img):
     gray = grayscale(img)
     
     # Define a kernel size and apply Gaussian smoothing
+    # kernel_size = 9
     kernel_size = 9
     blur_gray = gaussian_blur(img, kernel_size)
     
     # Define our parameters for Canny and apply
+    # low_threshold = 200
+    # high_threshold = 300
     low_threshold = 200
     high_threshold = 300
     edges = canny(img, low_threshold, high_threshold)
@@ -147,20 +158,26 @@ def process_image(img):
     
     # We define a triangle for our polygon mask
     imshape = img.shape
-    vertices = np.array([[(0,imshape[0]),(imshape[1]/2, imshape[0]/1.7), (imshape[1],imshape[0])]], dtype=np.int32)
+    vertices = np.array([[(imshape[1]/30,imshape[0]),(imshape[1]/2, imshape[0]/1.9), (imshape[1]-(imshape[1]/30),imshape[0])]], dtype=np.int32)
     
     masked_edges = region_of_interest(edges, vertices)
     
     # Define the Hough transform parameters
     # Make a blank the same size as our image to draw on
-    rho = 12 # distance resolution in pixels of the Hough grid
-    theta = np.pi/80 # angular resolution in radians of the Hough grid
-    threshold = 100     # minimum number of votes (intersections in Hough grid cell)
-    min_line_len = 6 #minimum number of pixels making up a line
-    max_line_gap = 3    # maximum gap in pixels between connectable line segments
+    # rho = 12 # distance resolution in pixels of the Hough grid
+    # theta = np.pi/80 # angular resolution in radians of the Hough grid
+    # threshold = 100     # minimum number of votes (intersections in Hough grid cell)
+    # min_line_len = 6 #minimum number of pixels making up a line
+    # max_line_gap = 3    # maximum gap in pixels between connectable line segments
+    
+    rho = 12
+    theta = 0.001
+    threshold = 100
+    min_line_len = 20
+    max_line_gap = 10
     
     # Run Hough on edge detected image
-    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap, imshape[0])
+    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap, imshape[0], imshape[1])
     
     # Create a "color" binary image to combine with line image
     color_edges = np.dstack((edges, edges, edges)) 
