@@ -72,12 +72,13 @@ def draw_lines(img, lines, y_max, color=[255, 0, 0], thickness=20):
     """
     
     slopes = (lines[:,0,3]-lines[:,0,1])/(lines[:,0,2] - lines[:,0,0])
+    lengths = sqrt((lines[:,0,3]-lines[:,0,1])**2 + (lines[:,0,2] - lines[:,0,0])**2)
     
     left_side = (slopes > 0) 
     right_side = (slopes < 0)
     
-    slope_left = np.average(slopes[left_side])
-    slope_right = np.average(slopes[right_side])
+    slope_left = np.average(slopes[left_side], weights=lengths[left_side])
+    slope_right = np.average(slopes[right_side], weights=lengths[right_side])
     
     x_mid_left = np.average(vstack((lines[left_side,0,0],lines[left_side,0,2])))
     y_mid_left = np.average(vstack((lines[left_side,0,1],lines[left_side,0,3])))
@@ -189,11 +190,11 @@ def process_image(img):
 #     marked_lane = process_image(img)
 #     scipy.misc.imsave(strImageOut[i], marked_lane)
 
-# yellow_output = 'yellow.mp4'
-# clip1 = VideoFileClip("solidYellowLeft.mp4")
-# 
-# yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
-# yellow_clip.write_videofile(yellow_output, audio=False)
+yellow_output = 'yellow.mp4'
+clip1 = VideoFileClip("solidYellowLeft.mp4")
+
+yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+yellow_clip.write_videofile(yellow_output, audio=False)
 
 white_output = 'white.mp4'
 clip2 = VideoFileClip("solidWhiteRight.mp4")
