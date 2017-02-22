@@ -6,6 +6,8 @@ import tensorflow as tf
 import math
 from moviepy.editor import VideoFileClip
 from IPython.display import HTML
+import os
+import scipy.misc
 
 ## Helper Functions
 def grayscale(img):
@@ -51,7 +53,7 @@ def region_of_interest(img, vertices):
     return masked_image
 
 
-def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
+def draw_lines(img, lines, y_max, color=[255, 0, 0], thickness=20):
     """
     NOTE: this is the function you might want to use as a starting point once you want to 
     average/extrapolate the line segments you detect to map out the full
@@ -68,11 +70,37 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
     If you want to make the lines semi-transparent, think about combining
     this function with the weighted_img() function below
     """
-    for line in lines:
-        for x1,y1,x2,y2 in line:
-            cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+    
+    slopes = (lines[:,0,3]-lines[:,0,1])/(lines[:,0,2] - lines[:,0,0])
+    
+    left_side = (slopes > 0) 
+    right_side = (slopes < 0)
+    
+    slope_left = np.average(slopes[left_side])
+    slope_right = np.average(slopes[right_side])
+    
+    x_mid_left = np.average(vstack((lines[left_side,0,0],lines[left_side,0,2])))
+    y_mid_left = np.average(vstack((lines[left_side,0,1],lines[left_side,0,3])))
+    
+    x_mid_right = np.average(vstack((lines[right_side,0,0],lines[right_side,0,2])))
+    y_mid_right = np.average(vstack((lines[right_side,0,1],lines[right_side,0,3])))
+    
+    x_lower_left = ((y_max - y_mid_left)/slope_left) + x_mid_left
+    x_lower_right = ((y_max - y_mid_right)/slope_right) + x_mid_right
+    
+    y_height = y_max/1.5;
+    
+    x_upper_left = ((y_height - y_mid_left)/slope_left) + x_mid_left
+    x_upper_right = ((y_height - y_mid_right)/slope_right) + x_mid_right
+    
+    cv2.line(img, (int(x_lower_left), y_max), (int(x_upper_left), int(y_height)), color, thickness)
+    cv2.line(img, (int(x_lower_right), y_max), (int(x_upper_right), int(y_height)), color, thickness) 
 
-def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
+    # for line in lines:
+    #     for x1,y1,x2,y2 in line:
+    #         cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+
+def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
     """
     `img` should be the output of a Canny transform.
         
@@ -80,7 +108,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     """
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
-    draw_lines(line_img, lines)
+    draw_lines(line_img, lines, y_max)
     return line_img
 
 # Python 3 has support for cool math symbols.
@@ -104,12 +132,12 @@ def process_image(img):
     gray = grayscale(img)
     
     # Define a kernel size and apply Gaussian smoothing
-    kernel_size = 21
+    kernel_size = 9
     blur_gray = gaussian_blur(img, kernel_size)
     
     # Define our parameters for Canny and apply
-    low_threshold = 60
-    high_threshold = 120
+    low_threshold = 200
+    high_threshold = 300
     edges = canny(img, low_threshold, high_threshold)
     
     # Next we'll create a masked edges image using cv2.fillPoly()
@@ -124,14 +152,14 @@ def process_image(img):
     
     # Define the Hough transform parameters
     # Make a blank the same size as our image to draw on
-    rho = 30 # distance resolution in pixels of the Hough grid
+    rho = 12 # distance resolution in pixels of the Hough grid
     theta = np.pi/80 # angular resolution in radians of the Hough grid
     threshold = 100     # minimum number of votes (intersections in Hough grid cell)
     min_line_len = 6 #minimum number of pixels making up a line
     max_line_gap = 3    # maximum gap in pixels between connectable line segments
     
     # Run Hough on edge detected image
-    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap)
+    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap, imshape[0])
     
     # Create a "color" binary image to combine with line image
     color_edges = np.dstack((edges, edges, edges)) 
@@ -140,6 +168,7 @@ def process_image(img):
     marked_lane = weighted_img(line_image, img)#, α=0.8, β=1., λ=0.)
     #plt.imshow(marked_lane)
     
+    # return marked_lane
     return marked_lane
 
 ## Main Functions
@@ -152,21 +181,31 @@ def process_image(img):
 # strImage = 'test_images/solidYellowLeft.jpg'
 # strImage = 'test_images/whiteCarLaneSwitch.jpg'
 
-# img = mpimg.imread(strImage)
-# marked_lane = process_image(img)
-# plt.imshow(marked_lane)
+# strImageIn = ["test_images/" + x for x in os.listdir("test_images/")]
+# strImageOut = ["test_images_output/" + x for x in os.listdir("test_images/")]
+# 
+# for i in range (0,5):
+#     img = mpimg.imread(strImageIn[i])
+#     marked_lane = process_image(img)
+#     scipy.misc.imsave(strImageOut[i], marked_lane)
 
-yellow_output = 'yellow.mp4'
-clip1 = VideoFileClip("solidYellowLeft.mp4")
-
-yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
-yellow_clip.write_videofile(yellow_output, audio=False)
+# yellow_output = 'yellow.mp4'
+# clip1 = VideoFileClip("solidYellowLeft.mp4")
+# 
+# yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+# yellow_clip.write_videofile(yellow_output, audio=False)
 
 white_output = 'white.mp4'
 clip2 = VideoFileClip("solidWhiteRight.mp4")
 
 white_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
 white_clip.write_videofile(white_output, audio=False)
+
+challenge_output = 'challenge-output.mp4'
+clip2 = VideoFileClip("challenge.mp4")
+
+challenge_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
+challenge_clip.write_videofile(challenge_output, audio=False)
 
 
 
