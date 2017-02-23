@@ -254,9 +254,9 @@ def check_result(design_vars):
 ## Main Script
 
 
-bounds = [[1, 60],[2, 500],[2, 900],[2, 50],[0.0001, 2*pi],[1, 400],[2, 300],[2, 300]]
-results = scipy.optimize.differential_evolution(objective_function, bounds)
+# bounds = [[1, 60],[2, 500],[2, 900],[2, 50],[0.0001, 2*pi],[1, 400],[2, 300],[2, 300]]
+# results = scipy.optimize.differential_evolution(objective_function, bounds)
 
 # check_result([  25.3505928 ,  317.14373338,  634.16902284,    2.03785962, 0.81923436,   10.06286094,    3.1415375 ,    2.19538521])
 
-# check_result([  13,  200,  400 ,   32, .0001,   71,    20,    10])
+check_result([  2.83331786e+01,   3.36554604e+02,   1.69931028e+02,3.69596687e+00, 5.30782900e-03,   1.92756312e+02,6.33460354e+01,   4.19259984e+00])
