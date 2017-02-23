@@ -71,14 +71,16 @@ def draw_lines(img, lines, y_max, x_max, color=[255, 0, 0], thickness=20):
     this function with the weighted_img() function below
     """
     
+    length_cuttof = 50;
+    
     slopes = (lines[:,0,3]-lines[:,0,1])/(lines[:,0,2] - lines[:,0,0])
     lengths = sqrt((lines[:,0,3]-lines[:,0,1])**2 + (lines[:,0,2] - lines[:,0,0])**2)
     
-    left_side = np.logical_and(slopes > 0, lengths > 0.01)
+    left_side = np.logical_and(slopes > 0, lengths > length_cuttof)
     offside = np.logical_or(lines[:,0,0] < x_max/2, lines[:,0,2] < x_max/2)
     left_side[offside] = False
     
-    right_side = np.logical_and(slopes < 0, lengths > 0.01)
+    right_side = np.logical_and(slopes < 0, lengths > length_cuttof)
     offside = np.logical_or(lines[:,0,0] > x_max/2, lines[:,0,2] > x_max/2)
     right_side[offside] = False
     
@@ -207,11 +209,11 @@ def process_image(img):
 #     marked_lane = process_image(img)
 #     scipy.misc.imsave(strImageOut[i], marked_lane)
 
-yellow_output = 'yellow.mp4'
-clip1 = VideoFileClip("solidYellowLeft.mp4")
-
-yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
-yellow_clip.write_videofile(yellow_output, audio=False)
+# yellow_output = 'yellow.mp4'
+# clip1 = VideoFileClip("solidYellowLeft.mp4")
+# 
+# yellow_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+# yellow_clip.write_videofile(yellow_output, audio=False)
 
 white_output = 'white.mp4'
 clip2 = VideoFileClip("solidWhiteRight.mp4")
@@ -219,11 +221,11 @@ clip2 = VideoFileClip("solidWhiteRight.mp4")
 white_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
 white_clip.write_videofile(white_output, audio=False)
 
-challenge_output = 'challenge-output.mp4'
-clip2 = VideoFileClip("challenge.mp4")
-
-challenge_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
-challenge_clip.write_videofile(challenge_output, audio=False)
+# challenge_output = 'challenge-output.mp4'
+# clip2 = VideoFileClip("challenge.mp4")
+# 
+# challenge_clip = clip2.fl_image(process_image) #NOTE: this function expects color images!!
+# challenge_clip.write_videofile(challenge_output, audio=False)
 
 
 

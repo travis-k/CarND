@@ -53,14 +53,34 @@ def region_of_interest(img, vertices):
     return masked_image
 
 
-def draw_lines(img, lines, y_max, color=[255, 0, 0], thickness=2):
+def draw_lines(img, lines, y_max, x_max, color=[255, 0, 0], thickness=2):
+
 
     if lines is not None:
-        for line in lines:
+        slopes = (lines[:,0,3]-lines[:,0,1])/(lines[:,0,2] - lines[:,0,0])
+        lengths = sqrt((lines[:,0,3]-lines[:,0,1])**2 + (lines[:,0,2] - lines[:,0,0])**2)
+        
+        left_side = (slopes > 0)
+        offside = np.logical_or(lines[:,0,0] < x_max/2, lines[:,0,2] < x_max/2)
+        left_side[offside] = False
+        
+        right_side = (slopes < 0)
+        offside = np.logical_or(lines[:,0,0] > x_max/2, lines[:,0,2] > x_max/2)
+        right_side[offside] = False
+        
+        left_lines = lines[left_side,:,:]
+        right_lines = lines[right_side,:,:]
+        
+        for line in left_lines:
             for x1,y1,x2,y2 in line:
                 cv2.line(img, (x1, y1), (x2, y2), color, thickness)
-    
-def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
+        
+        for line in right_lines:
+            for x1,y1,x2,y2 in line:
+                cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+            
+            
+def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max, x_max):
     """
     `img` should be the output of a Canny transform.
         
@@ -70,7 +90,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, y_max):
     
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
-    draw_lines(line_img, lines, y_max)
+    draw_lines(line_img, lines, y_max, x_max)
 
     return line_img
 
@@ -164,7 +184,7 @@ def process_image(img, kernel_size, low_threshold, high_threshold, rho, theta, t
     # max_line_gap = 3    # maximum gap in pixels between connectable line segments
     
     # Run Hough on edge detected image
-    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap, imshape[0])
+    line_image = hough_lines(masked_edges, rho, theta, threshold, min_line_len, max_line_gap, imshape[0], imshape[1])
     
     # Create a "color" binary image to combine with line image
     color_edges = np.dstack((edges, edges, edges)) 
@@ -202,11 +222,14 @@ def objective_function(design_vars):
         likeness.append(mse(marked_lane, img_desired))
 
 
-    avg_likeness = np.average(likeness)
+    # avg_likeness = np.average(likeness)
+    # print(avg_likeness, design_vars)
     
-    print(avg_likeness, design_vars)
+    worst_likeness = max(likeness)
     
-    return avg_likeness
+    print(worst_likeness, design_vars)
+    
+    return worst_likeness
     
 def check_result(design_vars):
 # This function is just for me to compare the images visually
@@ -231,10 +254,9 @@ def check_result(design_vars):
 ## Main Script
 
 
-# bounds = [[1, 60],[2, 500],[2, 900],[2, 50],[pi/180, 2*pi],[1, 400],[2, 300],[2, 300]]
+bounds = [[1, 60],[2, 500],[2, 900],[2, 50],[0.0001, 2*pi],[1, 400],[2, 300],[2, 300]]
+results = scipy.optimize.differential_evolution(objective_function, bounds)
 
-# results = scipy.optimize.differential_evolution(objective_function, bounds)
-# 
 # check_result([  25.3505928 ,  317.14373338,  634.16902284,    2.03785962, 0.81923436,   10.06286094,    3.1415375 ,    2.19538521])
 
-check_result([  13,  200,  400 ,   32, .0001,   71,    20,    10])
+# check_result([  13,  200,  400 ,   32, .0001,   71,    20,    10])
