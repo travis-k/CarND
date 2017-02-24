@@ -164,7 +164,7 @@ def process_image(img, AvgFlag):
     
     # I define a triangle for our polygon mask
     imshape = img.shape
-    # vertices = np.array([[(imshape[1]/30,imshape[0]),(imshape[1]/2, imshape[0]/1.7), (imshape[1]-(imshape[1]/30),imshape[0])]], dtype=np.int32)
+    # Masking out most of the frame, including the very bottom of the frame to avoid the hood of the car
     vertices = np.array([[(0,imshape[0]*0.9),(imshape[1]/2, imshape[0]/1.7), (imshape[1],imshape[0]*0.9)]], dtype=np.int32)
 
     
