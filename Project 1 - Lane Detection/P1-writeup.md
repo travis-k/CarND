@@ -7,8 +7,8 @@ This is an outline of my submission for Project 1: Finding Lane Lines. All files
 My project will output all test images and videos with both raw Hough lines and averaged lane lines, in separate folders. 
 
 [//]: # (Image References)
-[image1]: ./setting_optimization/desired_images/solidWhiteRight.jpg
-[image2]: ./setting_optimization/test_images_output/solidWhiteCurve.jpg
+[image1]: ./setting_optimization/desired_images/solidWhiteRight.jpg "Desired Hough Lines"
+[image2]: ./setting_optimization/test_images_output/solidWhiteCurve.jpg "Output using Optimizer Settings"
 
 ## Reflection
 
