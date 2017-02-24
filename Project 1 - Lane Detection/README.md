@@ -41,5 +41,8 @@ The settings with which I perform the Gaussian blur, Canny edge detection, and H
 
 It was unfortunately unsuccessful in the attempts I made early on. The settings returned by the optimizer sometimes ignored a left or right lane altogether, so it favoured very strict settings for the Hough transformation. I would like to return to this in the future to see if I could improve my results. It could be more easily done with a multi-objective optimization, but that is not readily available in Python (I come from a MATLAB background).
 
+This is the desired output of the Hough lines, created manually:
 ![Desired Hough Lines][image1]
+
+This is the Hough line output using the results from the optimizer:
 ![Output using Optimizer Settings][image2]
