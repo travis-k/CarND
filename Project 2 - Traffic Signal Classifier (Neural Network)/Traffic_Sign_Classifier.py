@@ -278,8 +278,8 @@ one_hot_y = tf.one_hot(y, 43)
 rate = 0.0001
 
 # logits = LeNet(x)
-logits = inception(x, train=True)
-logits_notrain = inception(x, train=False)
+logits = inception(x, train=False)
+# logits_notrain = inception(x, train=False)
 
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
@@ -287,7 +287,8 @@ loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdagradOptimizer(learning_rate = rate)
 training_operation = optimizer.minimize(loss_operation)
 
-correct_prediction = tf.equal(tf.argmax(logits_notrain, 1), tf.argmax(one_hot_y, 1))
+# correct_prediction = tf.equal(tf.argmax(logits_notrain, 1), tf.argmax(one_hot_y, 1))
+correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 saver = tf.train.Saver()
 
