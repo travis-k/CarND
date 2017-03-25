@@ -312,11 +312,12 @@ with tf.Session() as sess:
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print()
         
-    saver.save(sess, './lenet')
+    saver.save(sess, './incept')
     print("Model saved")
     
 # with tf.Session() as sess:
-#     saver.restore(sess, tf.train.latest_checkpoint('.'))
+#     # saver.restore(sess, tf.train.latest_checkpoint('.'))
+#     saver.restore(sess, './incept')
 # 
 #     test_accuracy = evaluate(X_test, y_test)
 #     print("Test Accuracy = {:.3f}".format(test_accuracy))
