@@ -8,61 +8,7 @@ from sklearn.utils import shuffle
 import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 
-def LeNet(x):    
-    # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
-    mu = 0
-    sigma = 0.1
-    
-    # SOLUTION: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma))
-    conv1_b = tf.Variable(tf.zeros(6))
-    conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
-
-    # SOLUTION: Activation.
-    conv1 = tf.nn.relu(conv1)
-
-    # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
-    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-
-    # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
-    conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
-    conv2_b = tf.Variable(tf.zeros(16))
-    conv2   = tf.nn.conv2d(conv1, conv2_W, strides=[1, 1, 1, 1], padding='VALID') + conv2_b
-    
-    # SOLUTION: Activation.
-    conv2 = tf.nn.relu(conv2)
-
-    # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
-    conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-
-    # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
-    fc0   = flatten(conv2)
-    
-    # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
-    fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
-    fc1_b = tf.Variable(tf.zeros(120))
-    fc1   = tf.matmul(fc0, fc1_W) + fc1_b
-    
-    # SOLUTION: Activation.
-    fc1    = tf.nn.relu(fc1)
-
-    # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
-    fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
-    fc2_b  = tf.Variable(tf.zeros(84))
-    fc2    = tf.matmul(fc1, fc2_W) + fc2_b
-    
-    # SOLUTION: Activation.
-    fc2    = tf.nn.relu(fc2)
-
-    # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 43.
-    fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
-    fc3_b  = tf.Variable(tf.zeros(43))
-    logits = tf.matmul(fc2, fc3_W) + fc3_b
-    
-    return logits
-
-    ## Inception
-def inception(x, train):
+def inception(x, drop):
     
     mu = 0
     sigma = 0.1
@@ -70,9 +16,8 @@ def inception(x, train):
     map1 = 6
     map2 = 12
     reduce1x1 = 3
-    num_fc1 = 350
+    num_fc1 = 128
     num_fc2 = 43
-    dropout=0.7
     img_size = 32
     
     #https://hacktilldawn.com/2016/09/25/inception-modules-explained-and-implemented/
@@ -86,15 +31,15 @@ def inception(x, train):
     
     # Inception module 1
 
-    W_conv1_1x1_1 = tf.Variable(tf.truncated_normal(shape=(1,1,3,map1), mean = mu, stddev = sigma))
+    W_conv1_1x1_1 = tf.Variable(tf.truncated_normal(shape=(1,1,1,map1), mean = mu, stddev = sigma))
     b_conv1_1x1_1 = tf.Variable(tf.zeros(map1))
      
     #follows input
-    W_conv1_1x1_2 = tf.Variable(tf.truncated_normal(shape=(1,1,3,reduce1x1), mean = mu, stddev = sigma))
+    W_conv1_1x1_2 = tf.Variable(tf.truncated_normal(shape=(1,1,1,reduce1x1), mean = mu, stddev = sigma))
     b_conv1_1x1_2 = tf.Variable(tf.zeros(reduce1x1))
      
     #follows input
-    W_conv1_1x1_3 = tf.Variable(tf.truncated_normal(shape=(1,1,3,reduce1x1), mean = mu, stddev = sigma))
+    W_conv1_1x1_3 = tf.Variable(tf.truncated_normal(shape=(1,1,1,reduce1x1), mean = mu, stddev = sigma))
     b_conv1_1x1_3 = tf.Variable(tf.zeros(reduce1x1))
      
     #follows 1x1_2
@@ -106,7 +51,7 @@ def inception(x, train):
     b_conv1_5x5 = tf.Variable(tf.zeros(map1))
      
     #follows max pooling
-    W_conv1_1x1_4= tf.Variable(tf.truncated_normal(shape=(1,1,3,map1), mean = mu, stddev = sigma))
+    W_conv1_1x1_4= tf.Variable(tf.truncated_normal(shape=(1,1,1,map1), mean = mu, stddev = sigma))
     b_conv1_1x1_4= tf.Variable(tf.zeros(map1))
     
 
@@ -115,7 +60,7 @@ def inception(x, train):
     conv1_1x1_3 = tf.nn.relu(tf.nn.conv2d(x, W_conv1_1x1_3, strides=[1, 1, 1, 1], padding='SAME') + b_conv1_1x1_3)
     conv1_3x3 = tf.nn.conv2d(conv1_1x1_2, W_conv1_3x3, strides=[1, 1, 1, 1], padding='SAME') + b_conv1_3x3
     conv1_5x5 = tf.nn.conv2d(conv1_1x1_3, W_conv1_5x5, strides=[1, 1, 1, 1], padding='SAME') + b_conv1_5x5
-    maxpool1 = tf.nn.avg_pool(x,ksize=[1,3,3,1],strides=[1,1,1,1],padding='SAME')
+    maxpool1 = tf.nn.max_pool(x,ksize=[1,3,3,1],strides=[1,1,1,1],padding='SAME')
     conv1_1x1_4 = tf.nn.relu(tf.nn.conv2d(maxpool1, W_conv1_1x1_4, strides=[1, 1, 1, 1], padding='SAME') + b_conv1_1x1_4)
     
         
@@ -154,7 +99,7 @@ def inception(x, train):
     conv2_1x1_3 = tf.nn.relu(tf.nn.conv2d(inception1, W_conv2_1x1_3, strides=[1, 1, 1, 1], padding='SAME') + b_conv2_1x1_3)
     conv2_3x3 = tf.nn.conv2d(conv2_1x1_2, W_conv2_3x3, strides=[1, 1, 1, 1], padding='SAME') + b_conv2_3x3
     conv2_5x5 = tf.nn.conv2d(conv2_1x1_3, W_conv2_5x5, strides=[1, 1, 1, 1], padding='SAME') + b_conv2_5x5
-    maxpool2 = tf.nn.avg_pool(inception1,ksize=[1,3,3,1],strides=[1,1,1,1],padding='SAME')
+    maxpool2 = tf.nn.max_pool(inception1,ksize=[1,3,3,1],strides=[1,1,1,1],padding='SAME')
     conv2_1x1_4 = tf.nn.relu(tf.nn.conv2d(maxpool2, W_conv2_1x1_4, strides=[1, 1, 1, 1], padding='SAME') + b_conv2_1x1_4)
         
     #concatenate all the feature maps and hit them with a relu
@@ -172,10 +117,7 @@ def inception(x, train):
     b_fc2 = tf.Variable(tf.zeros(num_fc2))
         
     #Fully connected layers
-    if train:
-        h_fc1 =tf.nn.dropout(tf.nn.relu(tf.matmul(inception2_flat,W_fc1)+b_fc1),dropout)
-    else:
-        h_fc1 = tf.nn.relu(tf.matmul(inception2_flat,W_fc1)+b_fc1)
+    h_fc1 =tf.nn.dropout(tf.nn.relu(tf.matmul(inception2_flat,W_fc1)+b_fc1),drop)
 
     logits = tf.matmul(h_fc1, W_fc2) + b_fc2
     
@@ -187,7 +129,7 @@ def evaluate(X_data, y_data):
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
+        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, drop: 1.0})
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
     
@@ -211,6 +153,18 @@ def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_m
             plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min, cmap="gray")
         else:
             plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", cmap="gray")
+            
+def normalize(x):
+    return x/127.5 - 1.0
+    
+def grayscale(rgb):
+    
+    r, g, b = rgb[:,:,:,0], rgb[:,:,:,1], rgb[:,:,:,2]
+    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+    
+    return np.expand_dims(gray, axis=-1)
+    
+    # return np.expand_dims(np.mean(rgb, -1), axis=-1)
 
 ## Importing data/preprocessing
 # All images are 32x32, so no resizing is necessary
@@ -233,6 +187,16 @@ X_test, y_test = test['features'], test['labels']
 
 # Shuffling the training data
 X_train, y_train = shuffle(X_train, y_train)
+
+# Normalizing data from (0,255) to (-1,1)
+X_train = normalize(X_train)
+X_valid = normalize(X_valid)
+X_test = normalize(X_test)
+
+# Converting to grayscale (Going from depth of 3 to 1)
+X_train = grayscale(X_train)
+X_valid = grayscale(X_valid)
+X_test = grayscale(X_test)
 
 # Ensuring there are no issues with data sizes
 assert(len(X_train) == len(y_train))
@@ -268,26 +232,23 @@ print("Number of classes =", n_classes)
 # print("Classification = ", y_train[index])
 
 ## Setting up TensorFlow hyperparameters
-EPOCHS = 100
+EPOCHS = 300
 BATCH_SIZE = 128
 
-x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+x = tf.placeholder(tf.float32, (None, 32, 32, 1))
 y = tf.placeholder(tf.int32, (None))
+drop = tf.placeholder(tf.float32)
 one_hot_y = tf.one_hot(y, 43)
 
-rate = 0.0001
+rate = 0.001
 
-# logits = LeNet(x)
-logits = inception(x, train=False)
-# logits_notrain = inception(x, train=False)
+logits = inception(x, drop)
 
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
-# optimizer = tf.train.AdamOptimizer(learning_rate = rate)
-optimizer = tf.train.AdagradOptimizer(learning_rate = rate)
+optimizer = tf.train.AdamOptimizer(learning_rate = rate)
 training_operation = optimizer.minimize(loss_operation)
 
-# correct_prediction = tf.equal(tf.argmax(logits_notrain, 1), tf.argmax(one_hot_y, 1))
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 saver = tf.train.Saver()
@@ -296,6 +257,7 @@ saver = tf.train.Saver()
     
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
+    # saver.restore(sess, './incept')
     num_examples = len(X_train)
     
     print("Training...")
@@ -305,7 +267,7 @@ with tf.Session() as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.7})
             
         validation_accuracy = evaluate(X_valid, y_valid)
         print("EPOCH {} ...".format(i+1))
