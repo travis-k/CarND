@@ -3,6 +3,7 @@ import pickle
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from sklearn.utils import shuffle
 
 import tensorflow as tf
@@ -117,6 +118,16 @@ def evaluate(X_data, y_data):
         accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, drop: 1.0})
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
+            
+def normalize(x):
+    return x/127.5 - 1.0
+    
+def grayscale(rgb):
+    
+    r, g, b = rgb[:,:,:,0], rgb[:,:,:,1], rgb[:,:,:,2]
+    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+    
+    return np.expand_dims(gray, axis=-1)
     
 def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1):
     # Here make sure to preprocess your image_input in a way your network expects
@@ -124,6 +135,15 @@ def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_m
     # image_input =
     # Note: x should be the same name as your network's tensorflow data placeholder variable
     # If you get an error tf_activation is not defined it maybe having trouble accessing the variable from inside a function
+    
+    X_test_map = mpimg.imread(strImageIn[i])
+    
+    # Normalizing data from (0,255) to (-1,1)
+    X_test_map = normalize(X_test_map)
+    
+    # Converting to grayscale (Going from depth of 3 to 1)
+    X_test_map = grayscale(X_test_map)
+    
     activation = tf_activation.eval(session=sess,feed_dict={x : image_input})
     featuremaps = activation.shape[3]
     plt.figure(plt_num, figsize=(15,15))
@@ -138,19 +158,7 @@ def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_m
             plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min, cmap="gray")
         else:
             plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", cmap="gray")
-            
-def normalize(x):
-    return x/127.5 - 1.0
     
-def grayscale(rgb):
-    
-    r, g, b = rgb[:,:,:,0], rgb[:,:,:,1], rgb[:,:,:,2]
-    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-    
-    return np.expand_dims(gray, axis=-1)
-    
-    # return np.expand_dims(np.mean(rgb, -1), axis=-1)
-
 ## Importing data/preprocessing
 # All images are 32x32, so no resizing is necessary
 
@@ -252,7 +260,7 @@ with tf.Session() as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
+            tf_activation = sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
             
         train_accuracy = evaluate(X_train, y_train)
         validation_accuracy = evaluate(X_valid, y_valid)
@@ -265,10 +273,14 @@ with tf.Session() as sess:
     print("Model saved")
     
 # with tf.Session() as sess:
-#     saver.restore(sess, tf.train.latest_checkpoint('.'))
+#     # saver.restore(sess, tf.train.latest_checkpoint('.'))
+#     saver.restore(sess, './incept-complete/incept')
 # 
-#     test_accuracy = evaluate(X_test, y_test)
-#     print("Test Accuracy = {:.3f}".format(test_accuracy))
+#     # test_accuracy = evaluate(X_test, y_test)
+#     # print("Test Accuracy = {:.3f}".format(test_accuracy))
+# 
+#     image_input = mpimg.imread('outside_images/stop.jpg')
+#     outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1)
 
 
 # image_input: the test image being fed into the network to produce the feature maps
