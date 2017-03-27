@@ -61,7 +61,7 @@ def inception(x, drop):
     conv1_1x1_4 = tf.nn.relu(tf.nn.conv2d(maxpool1, W_conv1_1x1_4, strides=[1, 1, 1, 1], padding='SAME') + b_conv1_1x1_4)
         
     # Concatenation of all feature maps, with ReLU
-    inception1 = tf.nn.relu(tf.concat([conv1_1x1_1,conv1_3x3,conv1_5x5,conv1_1x1_4],3))
+    inception1 = tf.nn.relu(tf.concat([conv1_1x1_1,conv1_3x3,conv1_5x5,conv1_1x1_4],3), name='inception1')
 
     #Inception Module2
     W_conv2_1x1_1 = tf.Variable(tf.truncated_normal(shape=(1,1,4*map1,map2), mean = mu, stddev = sigma))
@@ -91,7 +91,7 @@ def inception(x, drop):
     conv2_1x1_4 = tf.nn.relu(tf.nn.conv2d(maxpool2, W_conv2_1x1_4, strides=[1, 1, 1, 1], padding='SAME') + b_conv2_1x1_4)
         
     # Concatenation of all feature maps, with ReLU
-    inception2 = tf.nn.relu(tf.concat([conv2_1x1_1,conv2_3x3,conv2_5x5,conv2_1x1_4],3))
+    inception2 = tf.nn.relu(tf.concat([conv2_1x1_1,conv2_3x3,conv2_5x5,conv2_1x1_4],3), name='inception2')
 
     # Flattening
     inception2_flat = tf.reshape(inception2,[-1,img_size*img_size*4*map2])
@@ -136,28 +136,25 @@ def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_m
     # Note: x should be the same name as your network's tensorflow data placeholder variable
     # If you get an error tf_activation is not defined it maybe having trouble accessing the variable from inside a function
     
-    X_test_map = mpimg.imread(strImageIn[i])
+    # image_input: the test image being fed into the network to produce the feature maps
+    # tf_activation: should be a tf variable name used during your training procedure that represents the calculated state of a specific weight layer
+    # activation_min/max: can be used to view the activation contrast in more detail, by default matplot sets min and max to the actual min and max values of the output
+    # plt_num: used to plot out multiple different weight feature map sets on the same block, just extend the plt number for each new feature map entry
     
-    # Normalizing data from (0,255) to (-1,1)
-    X_test_map = normalize(X_test_map)
-    
-    # Converting to grayscale (Going from depth of 3 to 1)
-    X_test_map = grayscale(X_test_map)
-    
-    activation = tf_activation.eval(session=sess,feed_dict={x : image_input})
+    activation = tf_activation.eval(session=sess,feed_dict={x : image_input, drop: 1})
     featuremaps = activation.shape[3]
     plt.figure(plt_num, figsize=(15,15))
     for featuremap in range(featuremaps):
         plt.subplot(6,8, featuremap+1) # sets the number of feature maps to show on each row and column
         plt.title('FeatureMap ' + str(featuremap)) # displays the feature map number
         if activation_min != -1 & activation_max != -1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin =activation_min, vmax=activation_max, cmap="gray")
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin =activation_min, vmax=activation_max)
         elif activation_max != -1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmax=activation_max, cmap="gray")
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmax=activation_max)
         elif activation_min !=-1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min, cmap="gray")
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min)
         else:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", cmap="gray")
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest")
     
 ## Importing data/preprocessing
 # All images are 32x32, so no resizing is necessary
@@ -225,7 +222,7 @@ print("Number of classes =", n_classes)
 # print("Classification = ", y_train[index])
 
 ## Setting up TensorFlow hyperparameters
-EPOCHS = 40
+EPOCHS = 1
 BATCH_SIZE = 128
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 1))
@@ -273,18 +270,20 @@ saver = tf.train.Saver()
 #     print("Model saved")
     
 with tf.Session() as sess:
-    # saver.restore(sess, tf.train.latest_checkpoint('.'))
-    saver.restore(sess, './incept')
+    saver.restore(sess, tf.train.latest_checkpoint('.'))
 
     # test_accuracy = evaluate(X_test, y_test)
     # print("Test Accuracy = {:.3f}".format(test_accuracy))
 
-    image_input = mpimg.imread('outside_images/stop.jpg')
-    outputFeatureMap(image_input, X_train, activation_min=-1, activation_max=-1 ,plt_num=1)
-
-
-# image_input: the test image being fed into the network to produce the feature maps
-# tf_activation: should be a tf variable name used during your training procedure that represents the calculated state of a specific weight layer
-# activation_min/max: can be used to view the activation contrast in more detail, by default matplot sets min and max to the actual min and max values of the output
-# plt_num: used to plot out multiple different weight feature map sets on the same block, just extend the plt number for each new feature map entry
+    X_test_map = mpimg.imread('outside_images/stop.jpg')
+    X_test_map = np.expand_dims(X_test_map, axis=0)
+    
+    # Normalizing data from (0,255) to (-1,1)
+    X_test_map = normalize(X_test_map)
+    
+    # Converting to grayscale (Going from depth of 3 to 1)
+    X_test_map = grayscale(X_test_map)
+    
+    logits2 = inception(float32(X_test_map),float32(1))
+    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception:0'), activation_min=-1, activation_max=-1 ,plt_num=1)
 
