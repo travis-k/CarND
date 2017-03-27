@@ -222,7 +222,7 @@ print("Number of classes =", n_classes)
 # print("Classification = ", y_train[index])
 
 ## Setting up TensorFlow hyperparameters
-EPOCHS = 1
+EPOCHS = 20
 BATCH_SIZE = 128
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 1))
@@ -247,7 +247,6 @@ saver = tf.train.Saver()
     
 # with tf.Session() as sess:
 #     sess.run(tf.global_variables_initializer())
-#     # saver.restore(sess, './incept')
 #     num_examples = len(X_train)
 #     
 #     print("\nTraining...")
@@ -271,6 +270,7 @@ saver = tf.train.Saver()
     
 with tf.Session() as sess:
     saver.restore(sess, tf.train.latest_checkpoint('.'))
+    # saver.restore(sess, './incept')
 
     # test_accuracy = evaluate(X_test, y_test)
     # print("Test Accuracy = {:.3f}".format(test_accuracy))
@@ -284,6 +284,6 @@ with tf.Session() as sess:
     # Converting to grayscale (Going from depth of 3 to 1)
     X_test_map = grayscale(X_test_map)
     
-    logits2 = inception(float32(X_test_map),float32(1))
-    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception:0'), activation_min=-1, activation_max=-1 ,plt_num=1)
+    logits2 = inception(np.float32(X_test_map),np.float32(1))
+    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception1:0'), activation_min=-1, activation_max=-1 ,plt_num=1)
 
