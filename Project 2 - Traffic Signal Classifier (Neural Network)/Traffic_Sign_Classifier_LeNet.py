@@ -222,34 +222,6 @@ with tf.Session() as sess:
 #     test_accuracy = evaluate(X_test, y_test)
 #     print("Test Accuracy = {:.3f}".format(test_accuracy))
 
-### Preprocess the data here. Preprocessing steps could include normalization, converting to grayscale, etc.
-### Feel free to use as many code cells as needed.
-
-### Define your architecture here.
-### Feel free to use as many code cells as needed.
-
-### Train your model here.
-### Calculate and report the accuracy on the training and validation set.
-### Once a final model architecture is selected, 
-### the accuracy on the test set should be calculated and reported as well.
-### Feel free to use as many code cells as needed.
-
-### Load the images and plot them here.
-### Feel free to use as many code cells as needed.
-
-### Run the predictions here and use the model to output the prediction for each image.
-### Make sure to pre-process the images with the same pre-processing pipeline used earlier.
-### Feel free to use as many code cells as needed.
-
-### Calculate the accuracy for these 5 new images. 
-### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
-
-### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
-### Feel free to use as many code cells as needed.
-
-### Visualize your network's feature maps here.
-### Feel free to use as many code cells as needed.
-
 # image_input: the test image being fed into the network to produce the feature maps
 # tf_activation: should be a tf variable name used during your training procedure that represents the calculated state of a specific weight layer
 # activation_min/max: can be used to view the activation contrast in more detail, by default matplot sets min and max to the actual min and max values of the output
