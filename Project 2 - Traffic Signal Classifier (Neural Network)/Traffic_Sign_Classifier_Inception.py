@@ -248,39 +248,39 @@ saver = tf.train.Saver()
 
 ## Training and saving the model
     
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    # saver.restore(sess, './incept')
-    num_examples = len(X_train)
-    
-    print("\nTraining...")
-    print()
-    for i in range(EPOCHS):
-        X_train, y_train = shuffle(X_train, y_train)
-        for offset in range(0, num_examples, BATCH_SIZE):
-            end = offset + BATCH_SIZE
-            batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            tf_activation = sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
-            
-        train_accuracy = evaluate(X_train, y_train)
-        validation_accuracy = evaluate(X_valid, y_valid)
-        print("EPOCH {} ...".format(i+1))
-        print("Train Accuracy = {:.3f}".format(train_accuracy))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-        print()
-        
-    saver.save(sess, './incept')
-    print("Model saved")
-    
 # with tf.Session() as sess:
-#     # saver.restore(sess, tf.train.latest_checkpoint('.'))
-#     saver.restore(sess, './incept-complete/incept')
-# 
-#     # test_accuracy = evaluate(X_test, y_test)
-#     # print("Test Accuracy = {:.3f}".format(test_accuracy))
-# 
-#     image_input = mpimg.imread('outside_images/stop.jpg')
-#     outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1)
+#     sess.run(tf.global_variables_initializer())
+#     # saver.restore(sess, './incept')
+#     num_examples = len(X_train)
+#     
+#     print("\nTraining...")
+#     print()
+#     for i in range(EPOCHS):
+#         X_train, y_train = shuffle(X_train, y_train)
+#         for offset in range(0, num_examples, BATCH_SIZE):
+#             end = offset + BATCH_SIZE
+#             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
+#             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
+#             
+#         train_accuracy = evaluate(X_train, y_train)
+#         validation_accuracy = evaluate(X_valid, y_valid)
+#         print("EPOCH {} ...".format(i+1))
+#         print("Train Accuracy = {:.3f}".format(train_accuracy))
+#         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+#         print()
+#         
+#     saver.save(sess, './incept')
+#     print("Model saved")
+    
+with tf.Session() as sess:
+    # saver.restore(sess, tf.train.latest_checkpoint('.'))
+    saver.restore(sess, './incept')
+
+    # test_accuracy = evaluate(X_test, y_test)
+    # print("Test Accuracy = {:.3f}".format(test_accuracy))
+
+    image_input = mpimg.imread('outside_images/stop.jpg')
+    outputFeatureMap(image_input, X_train, activation_min=-1, activation_max=-1 ,plt_num=1)
 
 
 # image_input: the test image being fed into the network to produce the feature maps
