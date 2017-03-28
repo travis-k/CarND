@@ -283,6 +283,15 @@ saver = tf.train.Saver()
 #     saver.save(sess, './incept')
 #     print("Model saved")
     
+with tf.Session() as sess:
+
+    # saver.restore(sess, tf.train.latest_checkpoint('.'))
+    saver.restore(sess, './incept-complete/incept')
+    sess.run(tf.global_variables_initializer())
+        
+    test_accuracy = evaluate(X_test, y_test)
+    print("Test Accuracy = {:.3f}".format(test_accuracy))
+    
 strImageIn = ["outside_images/" + x for x in os.listdir("outside_images/")]
 image_class = [28, 18, 27, 36, 33, 24, 14, 13]
 
@@ -298,8 +307,8 @@ for i in range(1,9):
     
 with tf.Session() as sess:
     # saver.restore(sess, tf.train.latest_checkpoint('.'))
-    sess.run(tf.global_variables_initializer())
     saver.restore(sess, './incept-complete/incept')
+    sess.run(tf.global_variables_initializer())
 
     # test_accuracy = evaluate(X_test, y_test)
     # print("Test Accuracy = {:.3f}".format(test_accuracy))
@@ -336,13 +345,13 @@ with tf.Session() as sess:
         print('Corresponding classifications: ' + str(classes))
         
         # Plotting bar graphs showing the top five softmax results for each of the 8 web images
-        plt.figure(num=plt_num)
-        plt.xticks(range(0,6), classes[idx])
-        plt.bar(np.array(range(0,5)), softs[idx])
-        plt.ylabel('Softmax')
-        plt.xlabel('Neural Network Classification')
-        plt.title('Top Five Softmax Probabilities for Test Image - True Classification: ' + str(image_class[image_num]))
-        plt.show()
+        # plt.figure(num=plt_num)
+        # plt.xticks(range(0,6), classes[idx])
+        # plt.bar(np.array(range(0,5)), softs[idx])
+        # plt.ylabel('Softmax')
+        # plt.xlabel('Neural Network Classification')
+        # plt.title('Top Five Softmax Probabilities for Test Image - True Classification: ' + str(image_class[image_num]))
+        # plt.show()
         
         # If we classified this web image correctly, we add it to a tally
         if classes[0] == image_class[image_num]:
@@ -355,6 +364,11 @@ with tf.Session() as sess:
     web_image_accuracy = successes/8
     
     print('\nAccuracy over the images aquired on the web: ' + str(web_image_accuracy))
+ 
+with tf.Session() as sess:
+    saver.restore(sess, './incept-complete/incept')
+    sess.run(tf.global_variables_initializer())
+    # saver.restore(sess, './incept-complete/incept')
       
     # Outputting feature maps for both inception layers on a test image to visualize
     outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception1:0'), activation_min=-1, activation_max=-1 ,plt_num=plt_num)
