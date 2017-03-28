@@ -218,7 +218,7 @@ n_train = len(X_train)
 n_valid = len(X_valid)
 n_test = len(X_test)
 image_shape = X_train[0].shape
-n_classes = max(y_train)
+n_classes = len(np.unique(y_train))
 
 print("\nPreprocessing:")
 print("Number of training examples =", n_train)
