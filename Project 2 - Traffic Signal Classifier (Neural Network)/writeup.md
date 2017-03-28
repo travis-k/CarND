@@ -17,19 +17,19 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./outside_images/web_imgs.png "Eight signs taken from the web."
-[image2]: ./outside_images/classes.png "Examples of the 43 classifications."
-[image3]: ./outside_images/dist.png "Distribution of classifications among training set."
-[image4]: ./outside_images/13.png "Yield sign top 5 softmaxes"
-[image5]: ./outside_images/14.png "Stop sign top 5 softmaxes"
-[image6]: ./outside_images/18.png "General caution sign top 5 softmaxes"
-[image7]: ./outside_images/24.png "Road narrowing sign top 5 softmaxes"
-[image8]: ./outside_images/27.png "Pedestrian sign top 5 softmaxes"
-[image9]: ./outside_images/28.png "Children crossing sign top 5 softmaxes"
-[image10]: ./outside_images/33.png "Turn right ahead sign top 5 softmaxes"
-[image11]: ./outside_images/36.png "Go straight or right sign top 5 softmaxes"
-[image12]: ./outside_images/inception1maps.png "Feature maps for yield sign after first inception module"
-[image13]: ./outside_images/inception2maps.png "Feature maps for yield sign after second inception module"
+[image1]: ./writeup_img/web_imgs.png "Eight signs taken from the web."
+[image2]: ./writeup_img/classes.png "Examples of the 43 classifications."
+[image3]: ./writeup_img/dist.png "Distribution of classifications among training set."
+[image4]: ./writeup_img/13.png "Yield sign top 5 softmaxes"
+[image5]: ./writeup_img/14.png "Stop sign top 5 softmaxes"
+[image6]: ./writeup_img/18.png "General caution sign top 5 softmaxes"
+[image7]: ./writeup_img/24.png "Road narrowing sign top 5 softmaxes"
+[image8]: ./writeup_img/27.png "Pedestrian sign top 5 softmaxes"
+[image9]: ./writeup_img/28.png "Children crossing sign top 5 softmaxes"
+[image10]: ./writeup_img/33.png "Turn right ahead sign top 5 softmaxes"
+[image11]: ./writeup_img/36.png "Go straight or right sign top 5 softmaxes"
+[image12]: ./writeup_img/inception1maps.png "Feature maps for yield sign after first inception module"
+[image13]: ./writeup_img/inception2maps.png "Feature maps for yield sign after second inception module"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
