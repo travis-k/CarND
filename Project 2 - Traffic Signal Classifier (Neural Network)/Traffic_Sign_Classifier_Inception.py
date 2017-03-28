@@ -129,7 +129,7 @@ def grayscale(rgb):
     
     return np.expand_dims(gray, axis=-1)
     
-def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1):
+def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=3):
     # Here make sure to preprocess your image_input in a way your network expects
     # with size, normalization, ect if needed
     # image_input =
@@ -156,7 +156,7 @@ def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_m
         else:
             plt.imshow(activation[0,:,:, featuremap], interpolation="nearest")
     
-## Importing data/preprocessing
+## Importing data
 # All images are 32x32, so no resizing is necessary
 
 # Loading data provided by Udacity
@@ -174,6 +174,31 @@ with open(testing_file, mode='rb') as f:
 X_train, y_train = train['features'], train['labels']
 X_valid, y_valid = valid['features'], valid['labels']
 X_test, y_test = test['features'], test['labels']
+    
+## Visualizing a random image to ensure all is well
+# Displaying a random sign from the training set, and printing its classification
+
+# %matplotlib inline
+
+[classes, idx, counts] = unique(y_train, return_index=True, return_counts=True)
+
+plt.figure(num=1,figsize=(15,15))
+plt.suptitle('Example of Each Classification from Training Set')
+for i in range(1,44):
+    image = X_train[idx[i-1]].squeeze()
+    plt.subplot(5,9, i) # sets the number of feature maps to show on each row and column
+    plt.title('Class. = ' + str(i-1)) # displays the feature map number
+    plt.axis('off')
+    plt.imshow(image)
+    
+plt.figure(num=2)
+plt.bar(classes, counts)
+plt.ylabel('Count')
+plt.xlabel('Classification')
+plt.title('Number of Training Examples for Each Classification')
+plt.show()
+    
+## Preprocessing
 
 # Shuffling the training data
 X_train, y_train = shuffle(X_train, y_train)
@@ -208,18 +233,7 @@ print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
-## Visualizing a random image to ensure all is well
-# Displaying a random sign from the training set, and printing its classification
 
-# %matplotlib inline
-# 
-# index = random.randint(0, len(X_train))
-# image = X_train[index].squeeze()
-# 
-# plt.figure(figsize=(1,1))
-# plt.imshow(image)
-# print("\nRandom image visualization:")
-# print("Classification = ", y_train[index])
 
 ## Setting up TensorFlow hyperparameters
 EPOCHS = 20
@@ -234,6 +248,7 @@ rate = 0.001
 
 logits = inception(x, drop)
 
+testing_images = tf.nn.softmax(logits)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate = rate)
@@ -268,22 +283,79 @@ saver = tf.train.Saver()
 #     saver.save(sess, './incept')
 #     print("Model saved")
     
+strImageIn = ["outside_images/" + x for x in os.listdir("outside_images/")]
+image_class = [28, 18, 27, 36, 33, 24, 14, 13]
+
+plt.figure(num=3,figsize=(15,15))
+plt.suptitle('Five Test Signs from the Web')
+for i in range(1,9):
+    X_web = mpimg.imread(strImageIn[i-1])
+    image = X_web.squeeze()
+    plt.subplot(2,4, i) # sets the number of feature maps to show on each row and column
+    plt.title('Class. = ' + str(image_class[i-1])) # displays the feature map number
+    plt.axis('off')
+    plt.imshow(image)
+    
 with tf.Session() as sess:
-    saver.restore(sess, tf.train.latest_checkpoint('.'))
-    # saver.restore(sess, './incept')
+    # saver.restore(sess, tf.train.latest_checkpoint('.'))
+    sess.run(tf.global_variables_initializer())
+    saver.restore(sess, './incept-complete/incept')
 
     # test_accuracy = evaluate(X_test, y_test)
     # print("Test Accuracy = {:.3f}".format(test_accuracy))
 
-    X_test_map = mpimg.imread('outside_images/stop.jpg')
-    X_test_map = np.expand_dims(X_test_map, axis=0)
+    image_num = 0
+    plt_num = 4
+    successes = 0
     
-    # Normalizing data from (0,255) to (-1,1)
-    X_test_map = normalize(X_test_map)
+    for image in strImageIn:
     
-    # Converting to grayscale (Going from depth of 3 to 1)
-    X_test_map = grayscale(X_test_map)
+        X_test_map_img = mpimg.imread(image)
+        X_test_map = np.expand_dims(X_test_map_img, axis=0)
+        
+        # Normalizing data from (0,255) to (-1,1)
+        X_test_map = normalize(X_test_map)
+        
+        # Converting to grayscale (Going from depth of 3 to 1)
+        X_test_map = grayscale(X_test_map)
+        
+        # Finding the softmax probabilities
+        logits2 = sess.run(testing_images, feed_dict={x: X_test_map, drop: 1.0})
+        
+        # Getting the top five softmax results
+        topKV = sess.run(tf.nn.top_k(logits2, k=5))
+        
+        # Reformatting the above topKV data to make plotting easier
+        classes = topKV[1].squeeze();
+        softs = topKV[0].squeeze();
+        idx = np.argsort(classes)
+        
+        # Printing the above data as requested by Udacity
+        print('\nTest image ' + str(image_num) + ' (true classification: ' + str(image_class[image_num]) + ')')
+        print('Top five softmaxes: ' + str(softs))
+        print('Corresponding classifications: ' + str(classes))
+        
+        # Plotting bar graphs showing the top five softmax results for each of the 8 web images
+        plt.figure(num=plt_num)
+        plt.xticks(range(0,6), classes[idx])
+        plt.bar(np.array(range(0,5)), softs[idx])
+        plt.ylabel('Softmax')
+        plt.xlabel('Neural Network Classification')
+        plt.title('Top Five Softmax Probabilities for Test Image - True Classification: ' + str(image_class[image_num]))
+        plt.show()
+        
+        # If we classified this web image correctly, we add it to a tally
+        if classes[0] == image_class[image_num]:
+            successes += 1
+        
+        image_num += 1
+        plt_num += 1
+        
+    # Finding the accuracy over the web images
+    web_image_accuracy = successes/8
     
-    logits2 = inception(np.float32(X_test_map),np.float32(1))
-    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception1:0'), activation_min=-1, activation_max=-1 ,plt_num=1)
-
+    print('\nAccuracy over the images aquired on the web: ' + str(web_image_accuracy))
+      
+    # Outputting feature maps for both inception layers on a test image to visualize
+    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception1:0'), activation_min=-1, activation_max=-1 ,plt_num=plt_num)
+    outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception2:0'), activation_min=-1, activation_max=-1 ,plt_num=plt_num+1)
