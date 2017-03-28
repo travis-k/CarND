@@ -130,12 +130,6 @@ def grayscale(rgb):
     return np.expand_dims(gray, axis=-1)
     
 def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=3):
-    # Here make sure to preprocess your image_input in a way your network expects
-    # with size, normalization, ect if needed
-    # image_input =
-    # Note: x should be the same name as your network's tensorflow data placeholder variable
-    # If you get an error tf_activation is not defined it maybe having trouble accessing the variable from inside a function
-    
     # image_input: the test image being fed into the network to produce the feature maps
     # tf_activation: should be a tf variable name used during your training procedure that represents the calculated state of a specific weight layer
     # activation_min/max: can be used to view the activation contrast in more detail, by default matplot sets min and max to the actual min and max values of the output
@@ -233,10 +227,8 @@ print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
-
-
 ## Setting up TensorFlow hyperparameters
-EPOCHS = 20
+EPOCHS = 15
 BATCH_SIZE = 128
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 1))
@@ -260,38 +252,39 @@ saver = tf.train.Saver()
 
 ## Training and saving the model
     
-# with tf.Session() as sess:
-#     sess.run(tf.global_variables_initializer())
-#     num_examples = len(X_train)
-#     
-#     print("\nTraining...")
-#     print()
-#     for i in range(EPOCHS):
-#         X_train, y_train = shuffle(X_train, y_train)
-#         for offset in range(0, num_examples, BATCH_SIZE):
-#             end = offset + BATCH_SIZE
-#             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-#             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
-#             
-#         train_accuracy = evaluate(X_train, y_train)
-#         validation_accuracy = evaluate(X_valid, y_valid)
-#         print("EPOCH {} ...".format(i+1))
-#         print("Train Accuracy = {:.3f}".format(train_accuracy))
-#         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-#         print()
-#         
-#     saver.save(sess, './incept')
-#     print("Model saved")
-    
 with tf.Session() as sess:
-
-    # saver.restore(sess, tf.train.latest_checkpoint('.'))
-    saver.restore(sess, './incept-complete/incept')
     sess.run(tf.global_variables_initializer())
+    num_examples = len(X_train)
+    
+    print("\nTraining...")
+    print()
+    for i in range(EPOCHS):
+        X_train, y_train = shuffle(X_train, y_train)
+        for offset in range(0, num_examples, BATCH_SIZE):
+            end = offset + BATCH_SIZE
+            batch_x, batch_y = X_train[offset:end], y_train[offset:end]
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, drop: 0.5})
+            
+        train_accuracy = evaluate(X_train, y_train)
+        validation_accuracy = evaluate(X_valid, y_valid)
+        print("EPOCH {} ...".format(i+1))
+        print("Train Accuracy = {:.3f}".format(train_accuracy))
+        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print()
         
+    saver.save(sess, './incept')
+    print("Model saved")
+    
+## Testing with test data
+with tf.Session() as sess:
+    # saver.restore(sess, tf.train.latest_checkpoint('.'))
+    sess.run(tf.global_variables_initializer())
+    saver.restore(sess, './incept')
+
     test_accuracy = evaluate(X_test, y_test)
     print("Test Accuracy = {:.3f}".format(test_accuracy))
-    
+
+## Testing with web images    
 strImageIn = ["outside_images/" + x for x in os.listdir("outside_images/")]
 image_class = [28, 18, 27, 36, 33, 24, 14, 13]
 
@@ -307,11 +300,8 @@ for i in range(1,9):
     
 with tf.Session() as sess:
     # saver.restore(sess, tf.train.latest_checkpoint('.'))
-    saver.restore(sess, './incept-complete/incept')
     sess.run(tf.global_variables_initializer())
-
-    # test_accuracy = evaluate(X_test, y_test)
-    # print("Test Accuracy = {:.3f}".format(test_accuracy))
+    saver.restore(sess, './incept')
 
     image_num = 0
     plt_num = 4
@@ -344,14 +334,14 @@ with tf.Session() as sess:
         print('Top five softmaxes: ' + str(softs))
         print('Corresponding classifications: ' + str(classes))
         
-        # Plotting bar graphs showing the top five softmax results for each of the 8 web images
-        # plt.figure(num=plt_num)
-        # plt.xticks(range(0,6), classes[idx])
-        # plt.bar(np.array(range(0,5)), softs[idx])
-        # plt.ylabel('Softmax')
-        # plt.xlabel('Neural Network Classification')
-        # plt.title('Top Five Softmax Probabilities for Test Image - True Classification: ' + str(image_class[image_num]))
-        # plt.show()
+        Plotting bar graphs showing the top five softmax results for each of the 8 web images
+        plt.figure(num=plt_num)
+        plt.xticks(range(0,6), classes[idx])
+        plt.bar(np.array(range(0,5)), softs[idx])
+        plt.ylabel('Softmax')
+        plt.xlabel('Neural Network Classification')
+        plt.title('Top Five Softmax Probabilities for Test Image - True Classification: ' + str(image_class[image_num]))
+        plt.show()
         
         # If we classified this web image correctly, we add it to a tally
         if classes[0] == image_class[image_num]:
@@ -364,12 +354,12 @@ with tf.Session() as sess:
     web_image_accuracy = successes/8
     
     print('\nAccuracy over the images aquired on the web: ' + str(web_image_accuracy))
- 
+
+## Outputting example feature maps 
 with tf.Session() as sess:
-    saver.restore(sess, './incept-complete/incept')
     sess.run(tf.global_variables_initializer())
-    # saver.restore(sess, './incept-complete/incept')
-      
+    saver.restore(sess, './incept-complete/incept')
+
     # Outputting feature maps for both inception layers on a test image to visualize
     outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception1:0'), activation_min=-1, activation_max=-1 ,plt_num=plt_num)
     outputFeatureMap(X_test_map, sess.graph.get_tensor_by_name('inception2:0'), activation_min=-1, activation_max=-1 ,plt_num=plt_num+1)

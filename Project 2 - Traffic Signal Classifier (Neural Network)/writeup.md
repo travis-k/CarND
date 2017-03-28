@@ -4,6 +4,8 @@
 
 **Build a Traffic Sign Recognition Project**
 
+The code for this project is available at https://github.com/travis-k/CarND.git
+
 The goals / steps of this project are the following:
 * Load the data set (see below for links to the project data set)
 * Explore, summarize and visualize the data set
@@ -26,6 +28,8 @@ The goals / steps of this project are the following:
 [image9]: ./outside_images/28.png "Children crossing sign top 5 softmaxes"
 [image10]: ./outside_images/33.png "Turn right ahead sign top 5 softmaxes"
 [image11]: ./outside_images/36.png "Go straight or right sign top 5 softmaxes"
+[image12]: ./outside_images/inception1maps.png "Feature maps for yield sign after first inception module"
+[image13]: ./outside_images/inception2maps.png "Feature maps for yield sign after second inception module"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -198,3 +202,10 @@ The turn right ahead sign was categorized succesfully by my neural network with 
 
 The keep straight or turn right sign was categorized succesfully by my neural network with a 53.6% softmax, with road work coming in second place with 46.37%. Again, likely an idication that my training regime was poor.
 ![alt text][image11]
+
+
+####Example feature maps from the neural network
+
+![alt text][image12]
+
+![alt text][image13]
