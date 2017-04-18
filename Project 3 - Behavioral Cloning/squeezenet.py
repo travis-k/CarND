@@ -1,9 +1,14 @@
 from keras.applications.imagenet_utils import _obtain_input_shape
 from keras import backend as K
 from keras.layers import Input, Convolution2D, MaxPooling2D, Activation, concatenate, Dropout, GlobalAveragePooling2D, warnings, Dense, Flatten
+<<<<<<< HEAD
 from keras.models import Model, Sequential
 from keras.layers import Cropping2D, Lambda, BatchNormalization
 from keras.layers.advanced_activations import ELU
+=======
+from keras.models import Model
+from keras.layers import Cropping2D, Lambda
+>>>>>>> refs/remotes/origin/master
 # from keras.engine.topology import get_source_inputs
 # from keras.utils import get_file
 # from keras.utils import layer_utils
@@ -40,6 +45,7 @@ def fire_module(x, fire_id, squeeze=16, expand=64):
 
 # Original SqueezeNet from paper.
 
+<<<<<<< HEAD
 def squeezenet():
     
     input_shape=(160,320,3)
@@ -167,3 +173,71 @@ def squeezenet():
    ##   model = Model(img_input, out, name='squeezenet')
 
    ##   return model
+=======
+def squeezenet(input_shape=None, weights=None):
+    
+    if weights not in {'imagenet', None}:
+        raise ValueError('The `weights` argument should be either '
+                         '`None` (random initialization) or `imagenet` '
+                         '(pre-training on ImageNet).')
+
+    if weights == 'imagenet' and classes != 1000:
+        raise ValueError('If using `weights` as imagenet with `include_top`'
+                         ' as true, `classes` should be 1000')
+
+    img_input = Input(shape=(160,320,3))
+
+    ch, row, col = 3, 80, 320  # Trimmed image format
+    x = Cropping2D(cropping=((50,20), (0,0)))(img_input)
+    x = Lambda(lambda y: y/127.5 - 1., output_shape=(row, col, ch))(x)
+
+    x = Convolution2D(64, (3, 3), strides=(2, 2), padding='valid', name='conv1')(img_input)
+    x = Activation('relu', name='relu_conv1')(x)
+    x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool1')(x)
+
+    x = fire_module(x, fire_id=2, squeeze=16, expand=64)
+    x = fire_module(x, fire_id=3, squeeze=16, expand=64)
+    x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool3')(x)
+
+    x = fire_module(x, fire_id=4, squeeze=32, expand=128)
+    x = fire_module(x, fire_id=5, squeeze=32, expand=128)
+    x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool5')(x)
+
+    x = fire_module(x, fire_id=6, squeeze=48, expand=192)
+    x = fire_module(x, fire_id=7, squeeze=48, expand=192)
+    x = fire_module(x, fire_id=8, squeeze=64, expand=256)
+    x = fire_module(x, fire_id=9, squeeze=64, expand=256)
+    x = Dropout(0.5, name='drop9')(x)
+
+    x = Convolution2D(100, (1, 1), padding='valid', name='conv10')(x)
+    x = Activation('relu', name='relu_conv10')(x)
+    x = Flatten()(x)
+    out = Dense(1, name='dense_out')(x)
+    # x = GlobalAveragePooling2D()(x)
+    # out = Activation('softmax', name='loss')(x)
+
+    model = Model(img_input, out, name='squeezenet')
+
+    # load weights
+    if weights == 'imagenet':
+
+        weights_path = get_file('squeezenet_weights_tf_dim_ordering_tf_kernels.h5',
+                                    WEIGHTS_PATH,
+                                    cache_subdir='models')
+        model.load_weights(weights_path)
+        if K.backend() == 'theano':
+            layer_utils.convert_all_kernels_in_model(model)
+
+        if K.image_data_format() == 'channels_first':
+
+            if K.backend() == 'tensorflow':
+                warnings.warn('You are using the TensorFlow backend, yet you '
+                              'are using the Theano '
+                              'image data format convention '
+                              '(`image_data_format="channels_first"`). '
+                              'For best performance, set '
+                              '`image_data_format="channels_last"` in '
+                              'your Keras config '
+                              'at ~/.keras/keras.json.')
+    return model
+>>>>>>> refs/remotes/origin/master
