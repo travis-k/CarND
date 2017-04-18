@@ -4,18 +4,16 @@ import matplotlib.pyplot as plt
 import cv2
 import os
 import csv
-from squeezenet import squeezenet
-
+from nn_arch import nn_arch
 import numpy as np
 import sklearn
-
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
 import keras
 print(keras.__version__)
 
-def generator(samples, bias = 1.0, batch_size=32):
+def generator(samples, bias = 0.7, batch_size=32):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         shuffle(samples)
@@ -26,27 +24,25 @@ def generator(samples, bias = 1.0, batch_size=32):
             angles = []
             for batch_sample in batch_samples:
 
-                # Chosing randomly whether left or right
+                # Chosing randomly whether center, left or right
                 img_choice = np.random.randint(3) 
-                # img_choice = 0               
-                name = 'IMG\\' + batch_sample[img_choice].split('/')[-1]    
-                # name = 'IMG_mine\\' + batch_sample[img_choice].split('\\')[-1]             
+                name = 'IMG_mine\\' + batch_sample[img_choice].split('\\')[-1]             
                 img = cv2.imread(name)
-                
                 angle = float(batch_sample[3])
                 
-                correction = 0.1
-                
-                if img_choice == 1:
+                # Correction for if we choose one of the side cameras
+                correction = 0.25
+                if img_choice == 1: # Left camera
                     angle += correction
-                elif img_choice == 2:
+                elif img_choice == 2: # Right camera
                     angle -= correction
                     
-                # Randomly flipping
+                # Randomly flipping sometimes
                 if np.random.randint(2) == 0:
                     img = np.fliplr(img)
                     angle = -angle
                 
+                # Crude measure to reduce zero angle bias
                 threshold = np.random.uniform()
                 if (abs(angle) + bias) >= threshold or angles == []:
                     images.append(img)
@@ -57,11 +53,11 @@ def generator(samples, bias = 1.0, batch_size=32):
             y_train = np.array(angles)
             yield sklearn.utils.shuffle(X_train, y_train)
             
-#############
+## Creating training/validation sets
 
 samples = []
-with open('./driving_log.csv') as csvfile:
-# with open('./driving_log_mine.csv') as csvfile:
+# with open('./driving_log.csv') as csvfile:
+with open('./driving_log_mine.csv') as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         samples.append(line)
@@ -72,28 +68,22 @@ train_samples, validation_samples = train_test_split(samples, test_size=0.2)
 train_generator = generator(train_samples, batch_size=8)
 validation_generator = generator(validation_samples, batch_size=8)
 
-model = squeezenet()
+## Compiling the model 
+
+model = nn_arch()
 model.compile(loss='mse', optimizer='adam')
+# model.load_weights('model_weights.h5')
 
 ## Train the model
-history_object = model.fit_generator(train_generator, steps_per_epoch=200, validation_data=validation_generator, validation_steps=200, epochs=8, verbose=1)
-
-a = next(train_generator)
-b = model.predict(a[0])
-
-print(b)
-print(a[1])
+history_object = model.fit_generator(train_generator, steps_per_epoch=200, validation_data=validation_generator, validation_steps=200, epochs=6, verbose=1)
 
 model.save_weights('model_weights.h5')
 model.save('model.h5')
 
-# history_object = keras.models.load_model('model.h5')
-
-
-### print the keys contained in the history object
+## print the keys contained in the history object
 print(history_object.history.keys())
             
-### plot the training and validation loss for each epoch
+## plot the training and validation loss for each epoch
 plt.plot(history_object.history['loss'])
 plt.plot(history_object.history['val_loss'])
 plt.title('model mean squared error loss')
