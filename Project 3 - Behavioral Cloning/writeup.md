@@ -14,6 +14,13 @@ The goals / steps of this project are the following:
 * Test that the model successfully drives around track one without leaving the road
 * Summarize the results with a written report
 
+[//]: # (Image References)
+
+[image1]: ./images/figure_1.png "Example training data and steering angles."
+[image2]: ./images/figure_2.png "Histogram of steering angles with and without augmentation and modification."
+[image3]: ./images/cnn-architecture-624x890.png "NVIDIA CNN architecture."
+[image4]: ./images/model.png "My model architecture"
+
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
 
@@ -46,18 +53,7 @@ As noted above, the folder IMG was not included on the Git, as it is too large. 
 
 My model is based on the NVIDIA architecture, but some of the layers are reduced in size due to memory constraints. This architecture is, I believe, well suited for this application.
 
-* Input
-* Cropping
-* Normalization 
-* 3x3 Convolution (32 maps)
-* 3x3 Convolution (16 maps)
-* 3x3 Convolution (8 maps)
-* 3x3 Convolution (4 maps)
-* 2x2 Max pooling with 25% dropout
-* Fully connected layer (64 outputs) with 20% dropout
-* Fully connected layer (32 outputs)
-* Fully connected layer (16 outputs)
-* Fully connected layer (1 output)
+By altering the sizes of the layers, I was able to run this network on my local graphics card. Each epoch would take approximately a minute. This network was fast and allowed for low losses for this application.
 
 ####2. Attempts to reduce overfitting in the model
 
@@ -91,15 +87,44 @@ Everything is dealt with in the model, so a raw RGB photo is the model input. I 
 
 The final model architecture follows the NVIDIA CNN architecture, with 4 convolution layers, a max pooling layer, and 4 fully connected layers. I believe this is a standard architecture for this application.
 
+The standard NVIDIA CNN architecture is shown here.
+![alt text][image1]
+
+My modified architecture, to reduce memory requirements, is shown below.
+* Input
+* Cropping
+* Normalization 
+* 3x3 Convolution (32 maps)
+* 3x3 Convolution (16 maps)
+* 3x3 Convolution (8 maps)
+* 3x3 Convolution (4 maps)
+* 2x2 Max pooling with 25% dropout
+* Fully connected layer (64 outputs) with 20% dropout
+* Fully connected layer (32 outputs)
+* Fully connected layer (16 outputs)
+* Fully connected layer (1 output)
+
+![alt text][image4]
+
+The summary from Keras states:
+
+*Total params: 1,447,677
+*Trainable params: 1,447,517
+*Non-trainable params: 160
+
 ####3. Creation of the Training Set & Training Process
 
 To create training data, I performed three laps of Track 1 while staying in the center of the road, so the model could learn good behaviour. I then performed roughly 40 recovery maneouvers from the sides of the road, to teach the car to recover to the center if it happens to go off course. I made sure to only start recording when the car was off to the center, so I did not teach it to go off center.
+
+![alt text][image1]
 
 I randomly flipped both the images and steering angles, to eliminate the left-turn bias gained from Track 1. 
 
 I also reduced the zero angle bias by crudly reducing the amount of zero angle examples passed into the training set, using a bias to pass over some of these examples. This can be seen in the generator function in model.py.
 
 Also, to aid in recovery, I randomly select center, left or right camera for each snapshot. I apply a correction to the angle if it choses a side camera. This can also be seen in the generator in model.py.
+
+![alt text][image2]
 
 ###Future Considerations
 
