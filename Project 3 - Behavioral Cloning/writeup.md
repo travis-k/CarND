@@ -88,7 +88,7 @@ Everything is dealt with in the model, so a raw RGB photo is the model input. I 
 The final model architecture follows the NVIDIA CNN architecture, with 4 convolution layers, a max pooling layer, and 4 fully connected layers. I believe this is a standard architecture for this application.
 
 The standard NVIDIA CNN architecture is shown here.
-![alt text][image1]
+![alt text][image3]
 
 My modified architecture, to reduce memory requirements, is shown below.
 * Input
