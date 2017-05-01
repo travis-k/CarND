@@ -10,7 +10,40 @@ import pickle
 import collections
 from helper_functions import *
 
-def p4_pipeline(img):
+class Lines:
+    def __init__(self):
+    
+        # self.final_img = p4_pipeline(img)
+        # was the line detected in the last iteration?
+        self.left_detected = False  
+        self.right_detected = False
+        #polynomial coefficients for the most recent fit
+        self.current_left_fit = [np.array([False])]
+        self.current_right_fit = [np.array([False])]  
+        # Radius of curvature and off-center
+        self.left_curvature = None
+        self.right_curvature = None
+        self.off_center = None
+        
+        self.recent_leftx = None 
+        self.recent_rightx = None
+        
+        self.n = 0 # Number of fits we've stored in here
+        
+        #average x values of the fitted line over the last n iterations
+        self.bestx_right = None 
+        self.bestx_left = None
+        
+        #polynomial coefficients averaged over the last n iterations
+        self.best_fit_left = None  
+        self.best_fit_right = None
+        
+        #difference in fit coefficients between last and new fits
+        self.diffs_left = None
+        self.diffs_right = None
+
+
+def p4_pipeline(img, self):
 
     plot_it = False
 
@@ -34,11 +67,11 @@ def p4_pipeline(img):
     
     # Making a plot for the report comparing distorted and undistorted images
     if plot_it == True:
-        img = cv2.imread(strCalibrationIn[np.random.randint(low=0, high=len(strCalibrationIn))])
-        dst = cv2.undistort(img, mtx, dist, None, mtx)
+        img_cal = cv2.imread(strCalibrationIn[np.random.randint(low=0, high=len(strCalibrationIn))])
+        dst = cv2.undistort(img_cal, mtx, dist, None, mtx)
         
         f1, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
-        ax1.imshow(img)
+        ax1.imshow(img_cal)
         ax1.set_title('Original Image', fontsize=30)
         ax2.imshow(dst)
         ax2.set_title('Undistorted Image', fontsize=30)
@@ -57,7 +90,7 @@ def p4_pipeline(img):
     s_thresh=(170, 255)
     sx_thresh=(20, 100)
     colour_binary = pipeline(dst, s_thresh=s_thresh, sx_thresh=sx_thresh)
-    
+
     if plot_it == True:
         # Plot the result
         f3, (ax5, ax6) = plt.subplots(1, 2, figsize=(24, 9))
@@ -67,12 +100,12 @@ def p4_pipeline(img):
         ax5.set_title('Original Image', fontsize=40)
         
         ax6.imshow(colour_binary)
-        ax6.set_title('Pipeline Result', fontsize=40)
+        ax6.set_title('Colour Binary', fontsize=40)
         plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
     
     ## Masking
     img_size = np.shape(colour_binary)
-    height_offset = 1000; # How the height of the warped image will change
+    height_offset = 2000; # How the height of the warped image will change
     lr_padding = 200; # Left-right padding 
     ratio = (1060-270)/(680-605) # Ratio of horizon straight edge to hood straight edge
     
@@ -93,52 +126,61 @@ def p4_pipeline(img):
     
     if plot_it == True:
         f4, (ax7, ax8) = plt.subplots(1, 2, figsize=(20,10))
-        ax7.imshow(img)
+        ax7.imshow(colour_binary_masked)
         ax7.plot(src[:,0],src[:,1],'.-r')
         ax7.plot(src[0:4:3,0],src[0:4:3,1],'.-r')
-        ax7.set_title('Original Image', fontsize=30)
+        ax7.set_title('Unwarped Image', fontsize=30)
         ax8.imshow(warped)
         ax8.set_title('Warped Image', fontsize=30)
-    
+        
     ## Fitting polynomial equations to lane lines
+    nwindows = 20 # Choose the number of sliding windows
+    margin = 50 # Set the width of the windows +/- margin
+    minpix = 100 # Set minimum number of pixels found to recenter window
     
-    nwindows = 9 # Choose the number of sliding windows
-    margin = 100 # Set the width of the windows +/- margin
-    minpix = 50 # Set minimum number of pixels found to recenter window
-    
-    valu2 = find_lines(warped, nwindows, margin, minpix, plot_it=False)
-    left_fit = valu2[0]
-    right_fit = valu2[1]
+    if self.left_detected == False | self.right_detected == False: 
+        self = find_lines(self, warped, nwindows, margin, minpix, plot_it=True)
+        self.n = 1
+        left_fit = self.current_left_fit
+        right_fit = self.current_right_fit
+        self.best_fit_left = self.current_left_fit
+        self.best_fit_right = self.current_right_fit
+    else:
+        self = find_lines_near(warped, self, self.current_left_fit, self.current_right_fit, margin)
+        self.best_fit_left = np.average([[self.best_fit_left.squeeze()],[self.current_left_fit]],0,weights=[self.n, 1])  
+        self.best_fit_right = np.average([[self.best_fit_right.squeeze()],[self.current_right_fit]],0,weights=[self.n, 1])
+        if self.n < 10: 
+            self.n += 1
     
     ## Finding curvature 
     
-    curvature_values = find_curvature(left_fit, right_fit)
-    left_curve = curvature_values[0]
-    right_curve = curvature_values[1]
-    off_center = curvature_values[2]
-    
+    self = find_curvature(self)
+
     if plot_it == True:
-        print('Left Curvature: ', left_curve, 'm')
-        print('Right Curvature: ', right_curve, 'm')
-        print('Distance Off Center: ', off_center, 'm')
+        print('Left Curvature: ', self.left_curvature, 'm')
+        print('Right Curvature: ', self.right_curvature, 'm')
+        print('Distance Off Center: ', self.off_center, 'm')
     
     ## Warp lines back into original image shape
     
-    result = unwarp_add_lane(warped, img, left_fit, right_fit, dest, src)
-    
+    result = unwarp_add_lane(warped, img, self.best_fit_left.squeeze(), self.best_fit_right.squeeze(), dest, src)
+    plot_it = True
     if plot_it == True:
-        plt.imshow(result)
+        f20 = plt.figure()
+        ax20 = f20.add_subplot(111)
+        ax20.imshow(result)
+        ax20.set_title('Pipeline Output', fontsize=30)
     
     final_img = result
     
-    strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(left_curve) + ' m')
-    strright = str('Right Line Curvature: ' + '{0:.2f}'.format(right_curve) + ' m')
-    stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(off_center) + ' m')
+    strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(self.left_curvature) + ' m')
+    strright = str('Right Line Curvature: ' + '{0:.2f}'.format(self.right_curvature) + ' m')
+    stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(self.off_center) + ' m')
     
     cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, stroffset, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     
+    self.final_img = final_img
     
-    
-    return final_img
+    return self

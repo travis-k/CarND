@@ -1,16 +1,17 @@
-## Advanced Lane Finding
+# Advanced Lane Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
+[//]: # (Image References)
+[image1]: ./writeup_images/calibration.png "Calibration"
+[image2]: ./writeup_images/colourbinary.png "Colour Binary"
+[image3]: ./writeup_images/detectinglines.png "Detecting Lane Lines"
+[image4]: ./writeup_images/distortion.png "Correcting Distortion"
+[image5]: ./writeup_images/masking.png "Masking the Image"
+[image6]: ./writeup_images/pipelineoutput.png "Pipeline Output"
+[image7]: ./writeup_images/warping.png "Changing the Perspective"
 
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
----
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
-
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
+This is an outline of my submission for Project 4: Advanced Lane Detection. All files can be found in my CarND repository. Some of the files given with the project were reorganized into subfolders.
+[https://github.com/travis-k/CarND.git](https://github.com/travis-k/CarND.git)
 
 The Project
 ---
@@ -26,10 +27,77 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
+Camera Calibration
+---
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `ouput_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+To correct for camera distortion, the various 9x6 chess board images in the 'camera_cal/' folder were used to calculate the distortion correction values. This was done using OpenCV as it was with the lessons, using built-in functions. 
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
+The distortion correction values are stored in a local file, 'camera_calibration_saved.p'. If this file isn't present when the program is run, it will generate it using the calibration images in the "camera_cal/" folder. 
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
+![Calibration][image1]
+
+Distortion Correction
+---
+
+The first thing done after reading in the distortion correction values is using them to undistort the image from the car's camera. This is done using cv2.undistort, as it was in the lesson. 
+
+![Distortion Correction][image4]
+
+Color Transformations and Gradients
+---
+
+With the undistorted camera image, the image is converted to HLS image space. The Sobel in the x direction is calculated on the saturation channel. This is thresholded with values [20,100] to form a colour binary. The saturation channel alone is thresholded to form a second colour binary. These two are then combined with an OR operator to form the final colour binary.
+
+The reason the S channel is used, is it provided the best experimental results. More experimentation should be done on this in the future to improve the results on the challenge videos. 
+
+The combined colour binary is shown below. 
+![Colour Binary][image2]
+
+The colour binary is then masked, using the same area used later on to perform the perspective transformation.
+
+![Colour Binary Masking][image5]
+
+Perspective Transformation
+---
+
+The source area for the perspective transformation was found by casting a trapezoid which followed the lane lines from the bottom of the image to just below the horizon on one of the straight test images. This was done so the sides of the perspective transformation follow the road lines. Then, padding was added to the sides of the trapezoid so it was evenly spaced on the outside of the lane lines. This area was used for the perspective transformation source matrix.
+
+The destination matrix was a rectangle of much greater height. For the straight road test images, it was ensured that the perspective transformation resulted in straight lines in the warped image.
+
+![Perspective Transformation][image7]
+
+Identifying Lane Lines
+---
+The lane lines are found using the histogram/window method outlined in the lessons. A histogram is performed on the lower quarter of the image to find the base of the lane lines. The left line is found on the left half of the image, and the right is found on the right. This is to avoid the program from detecting other lines and, for example, deciding both lines are on the left side of the car.
+
+Once the base of the lines are found, 20 sliding windows are used to track the lines upwards. Polynomials are then fit to these windows, forming the equations of the left and right lane lines.
+
+![Identifying Lane Lines][image3]
+
+Radius of Curvature and Offset Calculation
+---
+
+The radius of curvature calculation was performed exactly as described by Udacity in the project tips section. The curvature of the corner in the project video was found to be approximately 1000m, which is the same order of magnitude as described by Udacity. This is obviously an approximation, as it depends heavily on the values used in the perspective transformation.
+
+The curvature goes to high numbers on the straight section of the road, as expected.
+
+The offset from the center of the lane was determined by averaging the base of the left and right lane lines and taking the difference from the center of the image, which is at 640 pixels. This was then converted from pixels to meters as described by Udacity. This value hovers around zero, but it also assumes that the camera is mounted dead center in the car.
+
+Warping Back to Original Perspective
+---
+
+Once the lane lines are calculated, the area inside the detected lane is masked off. This shape is then transformed back into the original perspective, using the inverse warp transformation.
+
+The final image is shown below. 
+![Calibration][image6]
+
+Pipeline Adjustment for Videos
+---
+When using the program for videos, a smarter search is performed to find the lane lines if they were detected in the last frame. The program uses the previous location of the lane lines, and searches around those lines for the new lines. 
+
+The program also uses the moving average of the past 15 frames in determining the lane line equations. This is done by averaging the coefficients over the last 15 frames. This smooths out the lane detection in the video, and helps to eliminate outliers. 
+
+Issues or Difficulties in This Project
+---
+
+My program works well for test images and the test video. However, it does quite poorly on the challenge videos.  

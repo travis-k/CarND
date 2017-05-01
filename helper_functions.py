@@ -16,7 +16,7 @@ def pipeline(img, s_thresh, sx_thresh):
     l_channel = hsv[:,:,1]
     s_channel = hsv[:,:,2]
     # Sobel x
-    sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 0) # Take the derivative in x
+    sobelx = cv2.Sobel(s_channel, cv2.CV_64F, 1, 0) # Take the derivative in x
     abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from horizontal
     scaled_sobel = np.uint8(255*abs_sobelx/np.max(abs_sobelx))
     
@@ -92,17 +92,17 @@ def camera_calibration(strCalibrationIn, img_size):
     dist_pickle["tvecs"] = tvecs
     pickle.dump(dist_pickle, open("camera_calibration_saved.p", "wb" ))
 
-def find_lines(warped, nwindows, margin, minpix, plot_it):
+def find_lines(self, warped, nwindows, margin, minpix, plot_it):
     # Assuming you have created a warped binary image called "warped"
     # Take a histogram of the bottom half of the image
-    histogram = np.sum(warped[np.int32(warped.shape[0]/2):,:], axis=0)
+    histogram = np.sum(warped[np.int32(warped.shape[0]/4):,:], axis=0)
     # Create an output image to draw on and  visualize the result
     out_img = np.dstack((warped, warped, warped))*255
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
     midpoint = np.int(histogram.shape[0]/2)
-    leftx_base = np.argmax(histogram[:midpoint])
-    rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+    leftx_base = np.argmax(histogram[100:midpoint]) + 100
+    rightx_base = np.argmax(histogram[midpoint + 400:]) + midpoint + 400
     
     # Set height of windows
     window_height = np.int(warped.shape[0]/nwindows)
@@ -146,6 +146,9 @@ def find_lines(warped, nwindows, margin, minpix, plot_it):
     left_lane_inds = np.concatenate(left_lane_inds)
     right_lane_inds = np.concatenate(right_lane_inds)
     
+    if len(left_lane_inds) > 0: self.left_detected = True
+    if len(right_lane_inds) > 0: self.right_detected = True
+    
     # Extract left and right line pixel positions
     leftx = nonzerox[left_lane_inds]
     lefty = nonzeroy[left_lane_inds] 
@@ -156,6 +159,12 @@ def find_lines(warped, nwindows, margin, minpix, plot_it):
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     
+    self.current_left_fit = left_fit
+    self.current_right_fit = right_fit
+    
+    self.recent_leftx = leftx 
+    self.recent_rightx = rightx
+    
     if plot_it == True:
         # Generate x and y values for plotting
         ploty = np.linspace(0, warped.shape[0]-1, warped.shape[0] )
@@ -164,15 +173,19 @@ def find_lines(warped, nwindows, margin, minpix, plot_it):
         
         out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
         out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
-        plt.imshow(out_img)
-        plt.plot(left_fitx, ploty, color='yellow')
-        plt.plot(right_fitx, ploty, color='yellow')
-        plt.xlim(0, 1280)
-        plt.ylim(720, 0)
+        
+        f32 = plt.figure()
+        ax32 = f32.add_subplot(111)
+        ax32.imshow(out_img)
+        ax32.plot(left_fitx, ploty, color='yellow')
+        ax32.plot(right_fitx, ploty, color='yellow')
+        ax32.set_title('Detecting Lines', fontsize=30)
+        # ax32.xlim(0, 1280)
+        # ax32.ylim(720, 0)
     
-    return (left_fit,right_fit)
+    return self
 
-def find_lines_near(warped, left_fit, right_fit, margin):
+def find_lines_near(warped, self, left_fit, right_fit, margin):
     # Assume you now have a new warped binary image 
     # from the next frame of video (also called "binary_warped")
     # It's now much easier to find line pixels!
@@ -191,13 +204,22 @@ def find_lines_near(warped, left_fit, right_fit, margin):
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
+    ploty = np.linspace(0, warped.shape[0]-1, warped.shape[0] )
     left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
     right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
     
-    return (left_fit,right_fit)
+    self.current_left_fit = left_fit
+    self.current_right_fit = right_fit
     
-def find_curvature(left_fit, right_fit):
+    self.recent_leftx = leftx 
+    self.recent_rightx = rightx
+    
+    return self
+    
+def find_curvature(self):
+    left_fit = self.best_fit_left.squeeze()
+    right_fit = self.best_fit_right.squeeze()
+    
     ploty = np.linspace(0, 719, num=720)# to cover same y-range as image
     y_eval = np.max(ploty)
     
@@ -216,7 +238,11 @@ def find_curvature(left_fit, right_fit):
     
     off_center = abs((((left_fit[0]*y_eval**2 + left_fit[1]*y_eval + left_fit[2]) + (right_fit[0]*y_eval**2 + right_fit[1]*y_eval + right_fit[2]))/2) - 640)*xm_per_pix
     
-    return (left_curverad, right_curverad, off_center)
+    self.left_curvature = left_curverad
+    self.right_curvature = right_curverad
+    self.off_center = off_center
+    
+    return self
     
 def unwarp_add_lane(warped, img, left_fit, right_fit, dest, src):
     # Generate x and y values for plotting
