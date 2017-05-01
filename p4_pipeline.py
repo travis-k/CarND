@@ -131,4 +131,14 @@ def p4_pipeline(img):
     
     final_img = result
     
+    strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(left_curve) + ' m')
+    strright = str('Right Line Curvature: ' + '{0:.2f}'.format(right_curve) + ' m')
+    stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(off_center) + ' m')
+    
+    cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.putText(final_img, stroffset, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    
+    
+    
     return final_img
