@@ -105,7 +105,7 @@ def p4_pipeline(img, self):
     
     ## Masking
     img_size = np.shape(colour_binary)
-    height_offset = 2000; # How the height of the warped image will change
+    height_offset = 1500; # How the height of the warped image will change
     lr_padding = 200; # Left-right padding 
     ratio = (1060-270)/(680-605) # Ratio of horizon straight edge to hood straight edge
     
@@ -190,8 +190,8 @@ def p4_pipeline(img, self):
     stravg = str('Average Line Curvature: ' + '{0:.2f}'.format((self.right_curvature + self.left_curvature)/2) + ' m')
     stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(self.off_center) + ' m')
     
-    cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    # cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    # cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, stravg, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, stroffset, (10,150), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     
