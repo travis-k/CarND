@@ -139,18 +139,30 @@ def p4_pipeline(img, self):
     minpix = 100 # Set minimum number of pixels found to recenter window
     
     if self.left_detected == False | self.right_detected == False: 
-        self = find_lines(self, warped, nwindows, margin, minpix, plot_it=True)
+        self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
         self.n = 1
         left_fit = self.current_left_fit
         right_fit = self.current_right_fit
         self.best_fit_left = self.current_left_fit
         self.best_fit_right = self.current_right_fit
     else:
-        self = find_lines_near(warped, self, self.current_left_fit, self.current_right_fit, margin)
-        self.best_fit_left = np.average([[self.best_fit_left.squeeze()],[self.current_left_fit]],0,weights=[self.n, 1])  
-        self.best_fit_right = np.average([[self.best_fit_right.squeeze()],[self.current_right_fit]],0,weights=[self.n, 1])
-        if self.n < 10: 
-            self.n += 1
+        basexleft = self.best_fit_left[0]*720**2 + self.best_fit_left[1]*720 + self.best_fit_left[2]
+        basexright = self.best_fit_right[0]*720**2 + self.best_fit_right[1]*720 + self.best_fit_right[2]
+        
+        if (basexright - basexleft < 300) | (basexleft > 500) | (basexright < 700): # If the lane lines in the previous frame are too close together, recalculate from nothing
+            self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
+            self.n = 1
+            left_fit = self.current_left_fit
+            right_fit = self.current_right_fit
+            self.best_fit_left = self.current_left_fit
+            self.best_fit_right = self.current_right_fit
+
+        else:
+            self = find_lines_near(warped, self, self.current_left_fit, self.current_right_fit, margin)
+            self.best_fit_left = np.average([[self.best_fit_left.squeeze()],[self.current_left_fit]],0,weights=[self.n, 1]).squeeze() 
+            self.best_fit_right = np.average([[self.best_fit_right.squeeze()],[self.current_right_fit]],0,weights=[self.n, 1]).squeeze()
+            if self.n < 10: 
+                self.n += 1
     
     ## Finding curvature 
     
@@ -164,7 +176,7 @@ def p4_pipeline(img, self):
     ## Warp lines back into original image shape
     
     result = unwarp_add_lane(warped, img, self.best_fit_left.squeeze(), self.best_fit_right.squeeze(), dest, src)
-    plot_it = True
+
     if plot_it == True:
         f20 = plt.figure()
         ax20 = f20.add_subplot(111)
@@ -175,11 +187,13 @@ def p4_pipeline(img, self):
     
     strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(self.left_curvature) + ' m')
     strright = str('Right Line Curvature: ' + '{0:.2f}'.format(self.right_curvature) + ' m')
+    stravg = str('Average Line Curvature: ' + '{0:.2f}'.format((self.right_curvature + self.left_curvature)/2) + ' m')
     stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(self.off_center) + ' m')
     
     cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    cv2.putText(final_img, stroffset, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.putText(final_img, stravg, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.putText(final_img, stroffset, (10,150), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     
     self.final_img = final_img
     

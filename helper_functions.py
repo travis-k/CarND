@@ -16,7 +16,7 @@ def pipeline(img, s_thresh, sx_thresh):
     l_channel = hsv[:,:,1]
     s_channel = hsv[:,:,2]
     # Sobel x
-    sobelx = cv2.Sobel(s_channel, cv2.CV_64F, 1, 0) # Take the derivative in x
+    sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 0) # Take the derivative in x
     abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from horizontal
     scaled_sobel = np.uint8(255*abs_sobelx/np.max(abs_sobelx))
     
