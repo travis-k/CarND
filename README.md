@@ -49,7 +49,7 @@ The feature vector, classifications, and X_scaler are saved in a pickle filed na
 Training the Classifier
 ---
 
-The linear SVC classifier is trained in p5_pipeline.py beginning at line 102. The training only occurs of svc_model.p does not exist in the local folder, otherwise the pretrained model is loaded instead. This is done so the model doesn't have to be trained every time the pipeline is run.
+The linear SVC classifier is trained in p5_pipeline.py beginning at line 102. The training only occurs if svc_model.p does not exist in the local folder, otherwise the pretrained model is loaded instead. This is done so the model doesn't have to be trained every time the pipeline is run.
 
 Accuracy of 98.6% was achieved with a 80/20 training/validation split using shuffled data.
 
@@ -75,6 +75,9 @@ Video Implementation
 ---
 The pipeline was implemented on every frame of the video. For videos, an averaging of the last 10 frames is used in the heat plot to help avoid false positives and noise. This average is then used to create the bounding box around the cars. 
 
+The pipeline was combined with the Advanced Lane Detection project, and the final output of this can be seen below.
+
+![Pipeline Output][image6]
 
 Discussion
 ---
