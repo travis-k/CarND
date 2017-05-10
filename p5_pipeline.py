@@ -50,6 +50,7 @@ class Lines:
         self.heatmaps = 0
         # self.heat = np.zeros((1,720,1280))
         self.heat = np.array([]).reshape(0,720,1280)
+        self.heat_avg = np.zeros((720,1280))
 
 
 def p5_pipeline(img, self):
@@ -198,25 +199,32 @@ def p5_pipeline(img, self):
         heat = np.expand_dims(add_heat(heat,bbox.astype(int)),0)
         
         self.heat = np.append(self.heat,heat,axis=0)
-        self.heatmaps += 1
-        
+
         if self.heatmaps < 5:
-            # heat_avg = np.mean(self.heat,axis=0)
             heat_avg = np.sum(self.heat,axis=0)
+            heat_avg = apply_threshold(heat_avg,4)
         else:
-            # heat_avg = np.mean(self.heat[self.heatmaps-5:self.heatmaps,:,:],axis=0)
             heat_avg = np.sum(self.heat[self.heatmaps-5:self.heatmaps,:,:],axis=0)
-        
-        # Apply threshold to help remove false positives
-        heat_avg = apply_threshold(heat_avg,11)
+            heat_avg = apply_threshold(heat_avg,10)
+
+
+        self.heatmaps += 1        
         
         # Visualize the heatmap when displaying    
         heatmap = np.clip(heat_avg, 0, 255)
         
         # Find final boxes from heatmap using label function
         labels = label(heatmap)
-        draw_img = draw_labeled_bboxes(np.copy(img), labels)    
+        draw_img = draw_labeled_bboxes(np.copy(img), labels)       
         
+        # plot_it = True
+        if plot_it == True:
+            f40 = plt.figure()
+            ax40 = f40.add_subplot(111)
+            ax40.imshow(labels[0],cmap='gray')
+  
+        
+        # plot_it = True
         if plot_it == True:
             f35, (ax35, ax36) = plt.subplots(1, 2)
             ax35.imshow(draw_img)
