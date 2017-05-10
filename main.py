@@ -20,7 +20,7 @@ if "test_images/Thumbs.db" in strTestImgIn: strTestImgIn.remove("test_images/Thu
 if "test_images_out/Thumbs.db" in strTestImgOut: strTestImgOut.remove("test_images/Thumbs.db")
 
 history = Lines() # No history for single images
-img = mpimg.imread(strTestImgIn[4])
+img = mpimg.imread(strTestImgIn[0])
 history = p5_pipeline(img, history)
 
 # # Running test images and outputting to test_images_output

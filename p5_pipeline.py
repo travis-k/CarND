@@ -179,7 +179,7 @@ def p5_pipeline(img, self):
     
     # plot_it = True
     if plot_it == True:
-        f37, (ax37, ax38, ax39) = plt.subplots(1,3)
+        f37, (ax37, ax38, ax39) = plt.subplots(3,1)
         ax37.imshow(out_img1)
         ax37.set_title('Small Scale Search (Far)')
         ax38.imshow(out_img2)
@@ -221,13 +221,12 @@ def p5_pipeline(img, self):
     labels = label(heatmap)
     draw_img = draw_labeled_bboxes(np.copy(img), labels)       
     
-    # plot_it = True
+    plot_it = True
     if plot_it == True:
         f40 = plt.figure()
         ax40 = f40.add_subplot(111)
         ax40.imshow(labels[0],cmap='gray')
 
-    
     # plot_it = True
     if plot_it == True:
         f35, (ax35, ax36) = plt.subplots(1, 2)
@@ -340,7 +339,7 @@ def p5_pipeline(img, self):
     cv2.putText(final_img, stravg, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     cv2.putText(final_img, stroffset, (10,150), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
     
-    plot_it = True
+    # plot_it = True
     if plot_it == True:
         f20 = plt.figure()
         ax20 = f20.add_subplot(111)

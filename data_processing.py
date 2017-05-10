@@ -37,3 +37,55 @@ data_pickle["X"] = scaled_X
 data_pickle["y"] = y
 data_pickle["X_scaler"] = X_scaler
 pickle.dump(data_pickle, open("train_data.p", "wb" ))
+
+## Visualize Data
+# car_ind = np.random.randint(0, len(strVehicle))
+# notcar_ind = np.random.randint(0, len(strNotVehicle))
+#     
+# # Read in car / not-car images
+# car_image = mpimg.imread(strVehicle[car_ind])
+# notcar_image = mpimg.imread(strNotVehicle[notcar_ind])
+# 
+# 
+# f200, (ax200, ax201) = plt.subplots(1, 2)
+# ax200.imshow(car_image)
+# ax200.set_title('Example Car Image')
+# ax201.imshow(notcar_image)
+# ax201.set_title('Example Not-car Image')
+# f200.tight_layout()
+
+## Visualize Hog Data
+
+# # Generate a random index to look at a car image
+# ind = np.random.randint(0, len(strVehicle))
+# # Read in the image
+# image = mpimg.imread(strVehicle[ind])
+# gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+# # Define HOG parameters
+# orient = 9
+# pix_per_cell = 8
+# cell_per_block = 2
+# # Call our function with vis=True to see an image output
+# features, hog_image = get_hog_features(gray, orient, 
+#                         pix_per_cell, cell_per_block, 
+#                         vis=True, feature_vec=False)
+# 
+# f200, (ax200, ax201) = plt.subplots(1, 2)
+# ax200.imshow(image)
+# ax200.set_title('Car Image')
+# ax201.imshow(hog_image)
+# ax201.set_title('Hog Car Image')
+# f200.tight_layout()
+
+
+
+
+
+
+
+
+
+
+
+
+
