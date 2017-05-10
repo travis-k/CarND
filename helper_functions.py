@@ -43,10 +43,10 @@ def color_hist(img, nbins=32, bins_range=(0, 256)):
 
 # Define a function to extract features from a list of images
 # Have this function call bin_spatial() and color_hist()
-def extract_features(imgs, color_space='RGB', spatial_size=(32, 32),
-                        hist_bins=32, orient=9, 
-                        pix_per_cell=8, cell_per_block=2, hog_channel=0,
-                        spatial_feat=True, hist_feat=True, hog_feat=True):
+def extract_features(imgs, color_space, spatial_size,
+                        hist_bins, orient, 
+                        pix_per_cell, cell_per_block, hog_channel,
+                        spatial_feat, hist_feat, hog_feat):
     # Create a list to append feature vectors to
     features = []
     # Iterate through the list of images
@@ -149,10 +149,10 @@ def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
     # Return the image copy with boxes drawn
     return imcopy
 
-def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
-                        hist_bins=32, orient=9, 
-                        pix_per_cell=8, cell_per_block=2, hog_channel=0,
-                        spatial_feat=True, hist_feat=True, hog_feat=True):    
+def single_img_features(img, color_space, spatial_size,
+                        hist_bins, orient, 
+                        pix_per_cell, cell_per_block, hog_channel,
+                        spatial_feat, hist_feat, hog_feat):    
     #1) Define an empty list to receive features
     img_features = []
     #2) Apply color conversion if other than 'RGB'
@@ -195,12 +195,12 @@ def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
     #9) Return concatenated array of features
     return np.concatenate(img_features)
     
-def search_windows(img, windows, clf, scaler, color_space='RGB', 
-                    spatial_size=(32, 32), hist_bins=32, 
-                    hist_range=(0, 256), orient=9, 
-                    pix_per_cell=8, cell_per_block=2, 
-                    hog_channel=0, spatial_feat=True, 
-                    hist_feat=True, hog_feat=True):
+def search_windows(img, windows, clf, scaler, color_space, 
+                    spatial_size, hist_bins, 
+                    hist_range, orient, 
+                    pix_per_cell, cell_per_block, 
+                    hog_channel, spatial_feat, 
+                    hist_feat, hog_feat):
 
     #1) Create an empty list to receive positive detection windows
     on_windows = []
@@ -231,8 +231,8 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, ce
     img = img.astype(np.float32)/255
     
     img_tosearch = img[ystart:ystop,:,:]
-    # ctrans_tosearch = convert_color(img_tosearch, conv='RGB2YCrCb')
-    ctrans_tosearch = img_tosearch
+    ctrans_tosearch = convert_color(img_tosearch, conv='RGB2YCrCb')
+    # ctrans_tosearch = img_tosearch
     if scale != 1:
         imshape = ctrans_tosearch.shape
         ctrans_tosearch = cv2.resize(ctrans_tosearch, (np.int(imshape[1]/scale), np.int(imshape[0]/scale)))
@@ -587,7 +587,7 @@ def unwarp_add_lane(warped, img, left_fit, right_fit, dest, src):
 
     return result
     
-def convert_color(img, conv='RGB2YCrCb'):
+def convert_color(img, conv):
     if conv == 'RGB2YCrCb':
         return cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)
     if conv == 'BGR2YCrCb':

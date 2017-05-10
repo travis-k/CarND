@@ -18,8 +18,8 @@ if "training_data/vehicles/Thumbs.db" in strVehicle: strVehicle.remove("training
 if "training_data/non-vehicles/Thumbs.db" in strNotVehicle: strNotVehicle.remove("training_data/non-vehicles/Thumbs.db")
 
 # Reading in features for cars and not-cars (color histogram and HOG feature vectors)
-car_features = extract_features(strVehicle, color_space='RGB', spatial_size=(32, 32),hist_bins=32, orient=9, pix_per_cell=8, cell_per_block=2, hog_channel='ALL',spatial_feat=True, hist_feat=True, hog_feat=True)
-notcar_features = extract_features(strNotVehicle, color_space='RGB', spatial_size=(32, 32),hist_bins=32, orient=9, pix_per_cell=8, cell_per_block=2, hog_channel='ALL',spatial_feat=True, hist_feat=True, hog_feat=True)
+car_features = extract_features(strVehicle, color_space='YCrCb', spatial_size=(32,32), hist_bins=32, orient=9, pix_per_cell=8, cell_per_block=2, hog_channel='ALL',spatial_feat=True, hist_feat=True, hog_feat=True)
+notcar_features = extract_features(strNotVehicle, color_space='YCrCb', spatial_size=(32,32), hist_bins=32, orient=9, pix_per_cell=8, cell_per_block=2, hog_channel='ALL',spatial_feat=True, hist_feat=True, hog_feat=True)
 
 # Stacking and scaling the feature vectors
 X = np.vstack((car_features, notcar_features)).astype(np.float64)                    
