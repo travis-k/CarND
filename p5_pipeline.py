@@ -206,7 +206,10 @@ def p5_pipeline(img, self):
         heat_avg = np.sum(self.heat,axis=0)
         heat_avg = apply_threshold(heat_avg,2+self.heatmaps)
     else:
-        heat_avg = np.sum(self.heat[self.heatmaps-10:self.heatmaps,:,:],axis=0)
+        # self.heat = self.heat[self.heatmaps-10:self.heatmaps+1,:,:]
+        self.heat = np.delete(self.heat,0,0)
+        heat_avg = np.sum(self.heat, axis=0)
+        # heat_avg = np.sum(self.heat[self.heatmaps-10:self.heatmaps,:,:],axis=0)
         heat_avg = apply_threshold(heat_avg,10)
 
     self.heatmaps += 1        

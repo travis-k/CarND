@@ -41,13 +41,13 @@ if "test_videos/Thumbs.db" in strTestVideoIn: strTestVideoIn.remove("test_videos
 if "test_videos_out/Thumbs.db" in strTestVideoOut: strTestVideoOut.remove("test_videos/Thumbs.db")
 
 history = Lines() # Resetting values in Lines class for this new video
-clip = VideoFileClip(strTestVideoIn[0])
+clip = VideoFileClip(strTestVideoIn[1])
 new_frames = []
 for frame in clip.iter_frames():
     history = p5_pipeline(frame,history)
     new_frames.append(history.final_img)
 new_clip = ImageSequenceClip(new_frames, fps=clip.fps)
-new_clip.write_videofile(strTestVideoOut[0]) 
+new_clip.write_videofile(strTestVideoOut[1]) 
  
 # # Processing each video file and outputting to videos_output
 # for i in range (0,len(strTestVideoIn)):
