@@ -237,131 +237,115 @@ def p5_pipeline(img, self):
         ax36.set_title('Heat Map')
         f35.tight_layout()
     
+    final_car_img = draw_img
     
-    ##
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    ## Applying colour transformation
+    s_thresh=(170, 255)
+    sx_thresh=(20, 100)
+    colour_binary = cb_pipeline(dst, s_thresh=s_thresh, sx_thresh=sx_thresh)
+
+    if plot_it == True:
+        # Plot the result
+        f3, (ax5, ax6) = plt.subplots(1, 2, figsize=(24, 9))
+        f3.tight_layout()
+        
+        ax5.imshow(img)
+        ax5.set_title('Original Image', fontsize=40)
+        
+        ax6.imshow(colour_binary)
+        ax6.set_title('Colour Binary', fontsize=40)
+        plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
     
+    ## Masking
+    img_size = np.shape(colour_binary)
+    height_offset = 1500; # How the height of the warped image will change
+    lr_padding = 200; # Left-right padding 
+    ratio = (1060-270)/(680-605) # Ratio of horizon straight edge to hood straight edge
     
+    # This unmodified box fits well around the lanes on a flat straight road
+    src = np.float32([[670+round(lr_padding/ratio), 440],[1060+lr_padding, 675],[250-lr_padding, 675],[610-round(lr_padding/ratio), 440]])
+    dest = np.float32([[1060+lr_padding, 440-height_offset],[1060+lr_padding, 675],[270-lr_padding, 675],[270-lr_padding, 440-height_offset]])
+    colour_binary_masked = region_of_interest(colour_binary, np.int32([src]))
     
-    final_img = draw_img
-    # ## Applying colour transformation
-    # s_thresh=(170, 255)
-    # sx_thresh=(20, 100)
-    # colour_binary = cb_pipeline(dst, s_thresh=s_thresh, sx_thresh=sx_thresh)
+    if plot_it == True:
+        f10 = plt.figure()
+        ax10 = f10.add_subplot(111)
+        ax10.imshow(colour_binary_masked)
+        ax10.set_title('Masked Colour Binary', fontsize=40)
+    
+    ## Warp it
+    
+    warped = warper(colour_binary_masked, src, dest)
+    
+    if plot_it == True:
+        f4, (ax7, ax8) = plt.subplots(1, 2, figsize=(20,10))
+        ax7.imshow(colour_binary_masked)
+        ax7.plot(src[:,0],src[:,1],'.-r')
+        ax7.plot(src[0:4:3,0],src[0:4:3,1],'.-r')
+        ax7.set_title('Unwarped Image', fontsize=30)
+        ax8.imshow(warped)
+        ax8.set_title('Warped Image', fontsize=30)
+        
+    ## Fitting polynomial equations to lane lines
+    nwindows = 20 # Choose the number of sliding windows
+    margin = 50 # Set the width of the windows +/- margin
+    minpix = 100 # Set minimum number of pixels found to recenter window
+    
+    if self.left_detected == False | self.right_detected == False: 
+        self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
+        self.n = 1
+        left_fit = self.current_left_fit
+        right_fit = self.current_right_fit
+        self.best_fit_left = self.current_left_fit
+        self.best_fit_right = self.current_right_fit
+    else:
+        basexleft = self.best_fit_left[0]*720**2 + self.best_fit_left[1]*720 + self.best_fit_left[2]
+        basexright = self.best_fit_right[0]*720**2 + self.best_fit_right[1]*720 + self.best_fit_right[2]
+        
+        if (basexright - basexleft < 300) | (basexleft > 500) | (basexright < 700): # If the lane lines in the previous frame are too close together, recalculate from nothing
+            self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
+            self.n = 1
+            left_fit = self.current_left_fit
+            right_fit = self.current_right_fit
+            self.best_fit_left = self.current_left_fit
+            self.best_fit_right = self.current_right_fit
 
-  #   ##   if plot_it == True:
-    #     # Plot the result
-    #     f3, (ax5, ax6) = plt.subplots(1, 2, figsize=(24, 9))
-    #     f3.tight_layout()
-    #     
-    #     ax5.imshow(img)
-    #     ax5.set_title('Original Image', fontsize=40)
-    #     
-    #     ax6.imshow(colour_binary)
-    #     ax6.set_title('Colour Binary', fontsize=40)
-    #     plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
-    # 
-    # ## Masking
-    # img_size = np.shape(colour_binary)
-    # height_offset = 1500; # How the height of the warped image will change
-    # lr_padding = 200; # Left-right padding 
-    # ratio = (1060-270)/(680-605) # Ratio of horizon straight edge to hood straight edge
-    # 
-    # # This unmodified box fits well around the lanes on a flat straight road
-    # src = np.float32([[670+round(lr_padding/ratio), 440],[1060+lr_padding, 675],[250-lr_padding, 675],[610-round(lr_padding/ratio), 440]])
-    # dest = np.float32([[1060+lr_padding, 440-height_offset],[1060+lr_padding, 675],[270-lr_padding, 675],[270-lr_padding, 440-height_offset]])
-    # colour_binary_masked = region_of_interest(colour_binary, np.int32([src]))
-    # 
-    # if plot_it == True:
-    #     f10 = plt.figure()
-    #     ax10 = f10.add_subplot(111)
-    #     ax10.imshow(colour_binary_masked)
-    #     ax10.set_title('Masked Colour Binary', fontsize=40)
-    # 
-    # ## Warp it
-    # 
-    # warped = warper(colour_binary_masked, src, dest)
-    # 
-    # if plot_it == True:
-    #     f4, (ax7, ax8) = plt.subplots(1, 2, figsize=(20,10))
-    #     ax7.imshow(colour_binary_masked)
-    #     ax7.plot(src[:,0],src[:,1],'.-r')
-    #     ax7.plot(src[0:4:3,0],src[0:4:3,1],'.-r')
-    #     ax7.set_title('Unwarped Image', fontsize=30)
-    #     ax8.imshow(warped)
-    #     ax8.set_title('Warped Image', fontsize=30)
-    #     
-    # ## Fitting polynomial equations to lane lines
-    # nwindows = 20 # Choose the number of sliding windows
-    # margin = 50 # Set the width of the windows +/- margin
-    # minpix = 100 # Set minimum number of pixels found to recenter window
-    # 
-    # if self.left_detected == False | self.right_detected == False: 
-    #     self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
-    #     self.n = 1
-    #     left_fit = self.current_left_fit
-    #     right_fit = self.current_right_fit
-    #     self.best_fit_left = self.current_left_fit
-    #     self.best_fit_right = self.current_right_fit
-    # else:
-    #     basexleft = self.best_fit_left[0]*720**2 + self.best_fit_left[1]*720 + self.best_fit_left[2]
-    #     basexright = self.best_fit_right[0]*720**2 + self.best_fit_right[1]*720 + self.best_fit_right[2]
-    #     
-    #     if (basexright - basexleft < 300) | (basexleft > 500) | (basexright < 700): # If the lane lines in the previous frame are too close together, recalculate from nothing
-    #         self = find_lines(self, warped, nwindows, margin, minpix, plot_it=False)
-    #         self.n = 1
-    #         left_fit = self.current_left_fit
-    #         right_fit = self.current_right_fit
-    #         self.best_fit_left = self.current_left_fit
-    #         self.best_fit_right = self.current_right_fit
+        else:
+            self = find_lines_near(warped, self, self.current_left_fit, self.current_right_fit, margin)
+            self.best_fit_left = np.average([[self.best_fit_left.squeeze()],[self.current_left_fit]],0,weights=[self.n, 1]).squeeze() 
+            self.best_fit_right = np.average([[self.best_fit_right.squeeze()],[self.current_right_fit]],0,weights=[self.n, 1]).squeeze()
+            if self.n < 10: 
+                self.n += 1
+    
+    ## Finding curvature 
+    
+    self = find_curvature(self)
 
-  #   ##       else:
-    #         self = find_lines_near(warped, self, self.current_left_fit, self.current_right_fit, margin)
-    #         self.best_fit_left = np.average([[self.best_fit_left.squeeze()],[self.current_left_fit]],0,weights=[self.n, 1]).squeeze() 
-    #         self.best_fit_right = np.average([[self.best_fit_right.squeeze()],[self.current_right_fit]],0,weights=[self.n, 1]).squeeze()
-    #         if self.n < 10: 
-    #             self.n += 1
-    # 
-    # ## Finding curvature 
-    # 
-    # self = find_curvature(self)
+    if plot_it == True:
+        print('Left Curvature: ', self.left_curvature, 'm')
+        print('Right Curvature: ', self.right_curvature, 'm')
+        print('Distance Off Center: ', self.off_center, 'm')
+    
+    ## Warp lines back into original image shape
+    
+    result = unwarp_add_lane(warped, final_car_img, self.best_fit_left.squeeze(), self.best_fit_right.squeeze(), dest, src)
 
-  #   ##   if plot_it == True:
-    #     print('Left Curvature: ', self.left_curvature, 'm')
-    #     print('Right Curvature: ', self.right_curvature, 'm')
-    #     print('Distance Off Center: ', self.off_center, 'm')
-    # 
-    # ## Warp lines back into original image shape
-    # 
-    # result = unwarp_add_lane(warped, img, self.best_fit_left.squeeze(), self.best_fit_right.squeeze(), dest, src)
-
-  #   ##   if plot_it == True:
-    #     f20 = plt.figure()
-    #     ax20 = f20.add_subplot(111)
-    #     ax20.imshow(result)
-    #     ax20.set_title('Pipeline Output', fontsize=30)
-    # 
-    # final_img = result
-    # 
-    # strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(self.left_curvature) + ' m')
-    # strright = str('Right Line Curvature: ' + '{0:.2f}'.format(self.right_curvature) + ' m')
-    # stravg = str('Average Line Curvature: ' + '{0:.2f}'.format((self.right_curvature + self.left_curvature)/2) + ' m')
-    # stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(self.off_center) + ' m')
-    # 
-    # # cv2.putText(final_img, strleft, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    # # cv2.putText(final_img, strright, (10,70), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    # cv2.putText(final_img, stravg, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    # cv2.putText(final_img, stroffset, (10,150), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    final_img = result
+    
+    strleft = str('Left Line Curvature: ' + '{0:.2f}'.format(self.left_curvature) + ' m')
+    strright = str('Right Line Curvature: ' + '{0:.2f}'.format(self.right_curvature) + ' m')
+    stravg = str('Average Line Curvature: ' + '{0:.2f}'.format((self.right_curvature + self.left_curvature)/2) + ' m')
+    stroffset = str('Offset from Lane Center: ' '{0:.2f}'.format(self.off_center) + ' m')
+    
+    cv2.putText(final_img, stravg, (10,110), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.putText(final_img, stroffset, (10,150), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    
+    plot_it = True
+    if plot_it == True:
+        f20 = plt.figure()
+        ax20 = f20.add_subplot(111)
+        ax20.imshow(result)
+        ax20.set_title('Pipeline Output', fontsize=30)
     
     self.final_img = final_img
     
