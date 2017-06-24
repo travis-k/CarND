@@ -1,4 +1,5 @@
 Outline of Projects in this Repository
+
 See other branches for previous projects
 ---
 
@@ -6,6 +7,7 @@ Project 1 - Lane Detection
 ---
 https://github.com/travis-k/CarND/tree/P1-Lane_Detection
 The goals / steps of this project are the following:
+
 * Make a pipeline that finds lane lines on the road (image or video) using OpenCV
 * Summarize the results with a written report
 
@@ -13,6 +15,7 @@ Project 2 - Traffic Sign Classifier
 ---
 https://github.com/travis-k/CarND/tree/P2-Traffic_Sign_Classifier
 The goals / steps of this project are the following:
+
 * Load the data set (see below for links to the project data set)
 * Explore, summarize and visualize the data set
 * Design, train and test a model architecture
@@ -24,6 +27,7 @@ Project 3 - Behavioral Cloning
 ---
 https://github.com/travis-k/CarND/tree/P3-Behavioral_Cloning
 The goals / steps of this project are the following:
+
 * Use the simulator to collect data of good driving behavior
 * Build a convolution neural network in Keras that predicts steering angles from images
 * Train and validate the model with a training and validation set
@@ -34,6 +38,7 @@ Project 4 - Advanced Lane Detection
 ---
 https://github.com/travis-k/CarND/tree/P4-Advanced_Lane_Detection
 The goals / steps of this project are the following:
+
 * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
 * Apply a distortion correction to raw images.
 * Use color transforms, gradients, etc., to create a thresholded binary image.
@@ -47,6 +52,7 @@ Project 5 - Vehicle Tracking
 ---
 https://github.com/travis-k/CarND/blob/P5-Vehicle_tracking/README.md
 The goals / steps of this project are the following:
+
 * Perform a Histogram of Oriented Gradients (HOG) feature extraction on a labeled training set of images and train a classifier Linear SVM classifier
 * Optionally, you can also apply a color transform and append binned color features, as well as histograms of color, to your HOG feature vector. 
 * Note: for those first two steps don't forget to normalize your features and randomize a selection for training and testing.
