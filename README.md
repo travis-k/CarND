@@ -1,6 +1,4 @@
 Outline of Projects in this Repository
-
-See other branches for previous projects
 ---
 
 Project 1 - Lane Detection
