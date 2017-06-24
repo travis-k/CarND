@@ -4,6 +4,7 @@ Outline of Projects in this Repository
 Project 1 - Lane Detection
 ---
 https://github.com/travis-k/CarND/tree/P1-Lane_Detection
+
 The goals / steps of this project are the following:
 
 * Make a pipeline that finds lane lines on the road (image or video) using OpenCV
@@ -12,6 +13,7 @@ The goals / steps of this project are the following:
 Project 2 - Traffic Sign Classifier
 ---
 https://github.com/travis-k/CarND/tree/P2-Traffic_Sign_Classifier
+
 The goals / steps of this project are the following:
 
 * Load the data set (see below for links to the project data set)
@@ -24,6 +26,7 @@ The goals / steps of this project are the following:
 Project 3 - Behavioral Cloning
 ---
 https://github.com/travis-k/CarND/tree/P3-Behavioral_Cloning
+
 The goals / steps of this project are the following:
 
 * Use the simulator to collect data of good driving behavior
@@ -35,6 +38,7 @@ The goals / steps of this project are the following:
 Project 4 - Advanced Lane Detection
 ---
 https://github.com/travis-k/CarND/tree/P4-Advanced_Lane_Detection
+
 The goals / steps of this project are the following:
 
 * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
@@ -49,6 +53,7 @@ The goals / steps of this project are the following:
 Project 5 - Vehicle Tracking
 ---
 https://github.com/travis-k/CarND/blob/P5-Vehicle_tracking/README.md
+
 The goals / steps of this project are the following:
 
 * Perform a Histogram of Oriented Gradients (HOG) feature extraction on a labeled training set of images and train a classifier Linear SVM classifier
