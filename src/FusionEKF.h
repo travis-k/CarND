@@ -44,6 +44,11 @@ private:
   Eigen::MatrixXd R_radar_;
   Eigen::MatrixXd H_laser_;
   Eigen::MatrixXd Hj_;
+
+  Eigen::MatrixXd H_;
+  Eigen::MatrixXd x_;
+  Eigen::MatrixXd F_;
+  Eigen::MatrixXd P_;
 };
 
 #endif /* FusionEKF_H_ */
