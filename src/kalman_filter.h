@@ -54,19 +54,19 @@ public:
    * using the process model
    * @param delta_T Time between k and k+1 in s
    */
-  void Predict();
+  void Predict(Eigen::VectorXd &x_, Eigen::MatrixXd &P_);
 
   /**
    * Updates the state by using standard Kalman Filter equations
    * @param z The measurement at k+1
    */
-  void Update(const Eigen::VectorXd &z);
+  void Update(const Eigen::VectorXd &z, Eigen::VectorXd &x_, Eigen::MatrixXd &P_, Eigen::MatrixXd R_);
 
   /**
    * Updates the state by using Extended Kalman Filter equations
    * @param z The measurement at k+1
    */
-  void UpdateEKF(const Eigen::VectorXd &z);
+  void UpdateEKF(const Eigen::VectorXd &z, Eigen::VectorXd &x_, Eigen::MatrixXd &P_, Eigen::MatrixXd R_);
 
 };
 
