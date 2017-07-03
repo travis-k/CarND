@@ -5,6 +5,14 @@
 training_data/
 __pycache__/
 train_data.p
+cmake-3.8.1-Linux-x86_64/
+Docs/
+ide_profiles/
+cmake
+cmake_3.8.1-Linux-x86_64.sh
+install-ubuntu.sh
+install-mac.sh
+
 
 #LaTeX 
 *.aux

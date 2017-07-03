@@ -12,13 +12,14 @@ KalmanFilter::KalmanFilter() {}
 KalmanFilter::~KalmanFilter() {}
 
 void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
+                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in, MatrixXd &Hj_in) {
   x_ = x_in;
   P_ = P_in;
   F_ = F_in;
   H_ = H_in;
   R_ = R_in;
   Q_ = Q_in;
+  Hj_ = Hj_in;
 }
 
 void KalmanFilter::Predict() {
@@ -65,18 +66,17 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     VectorXd y = z - z_pred;
 
     y(1) = atan2(sin(y(1)),cos(y(1)));
-    cout << 68 << endl;
-    MatrixXd Ht = H_.transpose();
-    MatrixXd S = H_ * P_ * Ht + R_;
+
+    MatrixXd Hjt = Hj_.transpose();
+    MatrixXd S = Hj_ * P_ * Hjt + R_;
     MatrixXd Si = S.inverse();
-    MatrixXd PHt = P_ * Ht;
-    MatrixXd K = PHt * Si;
-    cout << 74 << endl;
+    MatrixXd PHjt = P_ * Hjt;
+    MatrixXd K = PHjt * Si;
 
     //new estimate
     x_ = x_ + (K * y);
     long x_size = x_.size();
     MatrixXd I = MatrixXd::Identity(x_size, x_size);
-    P_ = (I - K * H_) * P_;
+    P_ = (I - K * Hj_) * P_;
 
 }
