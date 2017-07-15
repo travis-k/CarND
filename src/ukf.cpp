@@ -15,7 +15,7 @@ UKF::UKF() {
   is_initialized_ = false;
   
   // if this is false, laser measurements will be ignored (except during init)
-  use_laser_ = true;
+  use_laser_ = false;
 
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
@@ -107,7 +107,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     return;
   }
 
-  Prediction();
+  ukf.Prediction();
 
 }
 
@@ -251,10 +251,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   for (int i = 0; i < 2*n_aug_ + 1; i++) {  //2n+1 simga points
 
     // extract values for better readibility
-    double p_x = ukf.Xsig_pred_(0,i);
-    double p_y = ukf.Xsig_pred_(1,i);
-    double v  = ukf.Xsig_pred_(2,i);
-    double yaw = ukf.Xsig_pred_(3,i);
+    double p_x = Xsig_pred_(0,i);
+    double p_y = Xsig_pred_(1,i);
+    double v  = Xsig_pred_(2,i);
+    double yaw = Xsig_pred_(3,i);
 
     double v1 = cos(yaw)*v;
     double v2 = sin(yaw)*v;
@@ -269,7 +269,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   VectorXd z_pred = VectorXd(n_z);
   z_pred.fill(0.0);
   for (int i=0; i < 2*n_aug+1; i++) {
-      z_pred = z_pred + ukf.weights_(i) * Zsig.col(i);
+      z_pred = z_pred + weights_(i) * Zsig.col(i);
   }
 
   //measurement covariance matrix S
@@ -283,7 +283,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
     while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
 
-    S = S + ukf.weights_(i) * z_diff * z_diff.transpose();
+    S = S + weights_(i) * z_diff * z_diff.transpose();
   }
 
   //add measurement noise covariance matrix
@@ -293,7 +293,6 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
           0, 0,std_radrd*std_radrd;
   S = S + R;
 
-  ukf.x_ = z_pred;
-  ukf.P_ = S;
-
+  P_ = S_;
+  x_ = z_pred;
 }
