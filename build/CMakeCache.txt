@@ -114,7 +114,7 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=ExtendedKF
+CMAKE_PROJECT_NAME:STATIC=UnscentedKF
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -170,6 +170,12 @@ ExtendedKF_BINARY_DIR:STATIC=/mnt/c/Users/Travis/Desktop/GIT Udacity/CarND/build
 
 //Value Computed by CMake
 ExtendedKF_SOURCE_DIR:STATIC=/mnt/c/Users/Travis/Desktop/GIT Udacity/CarND
+
+//Value Computed by CMake
+UnscentedKF_BINARY_DIR:STATIC=/mnt/c/Users/Travis/Desktop/GIT Udacity/CarND/build
+
+//Value Computed by CMake
+UnscentedKF_SOURCE_DIR:STATIC=/mnt/c/Users/Travis/Desktop/GIT Udacity/CarND
 
 
 ########################

@@ -25,11 +25,20 @@ public:
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
 
+  MatrixXd H_;
+
+  MatrixXd R_ ;
+
   ///* state covariance matrix
   MatrixXd P_;
 
+  int n_z_;
+
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
+
+  // previous timestamp
+  long long previous_timestamp_;
 
   ///* time when the state is true, in us
   long long time_us_;
@@ -67,7 +76,6 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
-
   /**
    * Constructor
    */
@@ -102,6 +110,11 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  
+  void initValues(MeasurementPackage meas_package);
+
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd* Zsig);
+  void RadarUpdateState(VectorXd z_pred, MatrixXd S_pred, VectorXd z, MatrixXd Zsig);
 };
 
 #endif /* UKF_H */

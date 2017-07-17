@@ -111,71 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ExtendedKF
+# Target rules for targets named UnscentedKF
 
 # Build rule for target.
-ExtendedKF: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ExtendedKF
-.PHONY : ExtendedKF
+UnscentedKF: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 UnscentedKF
+.PHONY : UnscentedKF
 
 # fast build rule for target.
-ExtendedKF/fast:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/build
-.PHONY : ExtendedKF/fast
-
-src/FusionEKF.o: src/FusionEKF.cpp.o
-
-.PHONY : src/FusionEKF.o
-
-# target to build an object file
-src/FusionEKF.cpp.o:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/FusionEKF.cpp.o
-.PHONY : src/FusionEKF.cpp.o
-
-src/FusionEKF.i: src/FusionEKF.cpp.i
-
-.PHONY : src/FusionEKF.i
-
-# target to preprocess a source file
-src/FusionEKF.cpp.i:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/FusionEKF.cpp.i
-.PHONY : src/FusionEKF.cpp.i
-
-src/FusionEKF.s: src/FusionEKF.cpp.s
-
-.PHONY : src/FusionEKF.s
-
-# target to generate assembly for a file
-src/FusionEKF.cpp.s:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/FusionEKF.cpp.s
-.PHONY : src/FusionEKF.cpp.s
-
-src/kalman_filter.o: src/kalman_filter.cpp.o
-
-.PHONY : src/kalman_filter.o
-
-# target to build an object file
-src/kalman_filter.cpp.o:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/kalman_filter.cpp.o
-.PHONY : src/kalman_filter.cpp.o
-
-src/kalman_filter.i: src/kalman_filter.cpp.i
-
-.PHONY : src/kalman_filter.i
-
-# target to preprocess a source file
-src/kalman_filter.cpp.i:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/kalman_filter.cpp.i
-.PHONY : src/kalman_filter.cpp.i
-
-src/kalman_filter.s: src/kalman_filter.cpp.s
-
-.PHONY : src/kalman_filter.s
-
-# target to generate assembly for a file
-src/kalman_filter.cpp.s:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/kalman_filter.cpp.s
-.PHONY : src/kalman_filter.cpp.s
+UnscentedKF/fast:
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/build
+.PHONY : UnscentedKF/fast
 
 src/main.o: src/main.cpp.o
 
@@ -183,7 +129,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/main.cpp.o
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -192,7 +138,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/main.cpp.i
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -201,7 +147,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/main.cpp.s
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 src/tools.o: src/tools.cpp.o
@@ -210,7 +156,7 @@ src/tools.o: src/tools.cpp.o
 
 # target to build an object file
 src/tools.cpp.o:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/tools.cpp.o
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.o
 .PHONY : src/tools.cpp.o
 
 src/tools.i: src/tools.cpp.i
@@ -219,7 +165,7 @@ src/tools.i: src/tools.cpp.i
 
 # target to preprocess a source file
 src/tools.cpp.i:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/tools.cpp.i
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.i
 .PHONY : src/tools.cpp.i
 
 src/tools.s: src/tools.cpp.s
@@ -228,8 +174,35 @@ src/tools.s: src/tools.cpp.s
 
 # target to generate assembly for a file
 src/tools.cpp.s:
-	$(MAKE) -f CMakeFiles/ExtendedKF.dir/build.make CMakeFiles/ExtendedKF.dir/src/tools.cpp.s
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.s
 .PHONY : src/tools.cpp.s
+
+src/ukf.o: src/ukf.cpp.o
+
+.PHONY : src/ukf.o
+
+# target to build an object file
+src/ukf.cpp.o:
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.o
+.PHONY : src/ukf.cpp.o
+
+src/ukf.i: src/ukf.cpp.i
+
+.PHONY : src/ukf.i
+
+# target to preprocess a source file
+src/ukf.cpp.i:
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.i
+.PHONY : src/ukf.cpp.i
+
+src/ukf.s: src/ukf.cpp.s
+
+.PHONY : src/ukf.s
+
+# target to generate assembly for a file
+src/ukf.cpp.s:
+	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.s
+.PHONY : src/ukf.cpp.s
 
 # Help Target
 help:
@@ -239,19 +212,16 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... ExtendedKF"
-	@echo "... src/FusionEKF.o"
-	@echo "... src/FusionEKF.i"
-	@echo "... src/FusionEKF.s"
-	@echo "... src/kalman_filter.o"
-	@echo "... src/kalman_filter.i"
-	@echo "... src/kalman_filter.s"
+	@echo "... UnscentedKF"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
 	@echo "... src/tools.o"
 	@echo "... src/tools.i"
 	@echo "... src/tools.s"
+	@echo "... src/ukf.o"
+	@echo "... src/ukf.i"
+	@echo "... src/ukf.s"
 .PHONY : help
 
 
