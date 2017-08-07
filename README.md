@@ -78,3 +78,11 @@ The goals / steps of this project are the following:
 * Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
 * Reduce mean squared error of the filter below the necessary threshold
 * Compare the results of this filter with the EKF from the previous project
+
+Project 7 - Unscented Kalman Filter
+---
+The goals / steps of this project are the following:
+
+* Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
+* Reduce mean squared error of the filter below the necessary threshold
+* Compare the results of this filter with the EKF from the previous project
