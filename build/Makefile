@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = "/mnt/c/Users/Travis/Desktop/GIT Udacity/CarND/build"
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named UnscentedKF
+# Target rules for targets named particle_filter
 
 # Build rule for target.
-UnscentedKF: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 UnscentedKF
-.PHONY : UnscentedKF
+particle_filter: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 particle_filter
+.PHONY : particle_filter
 
 # fast build rule for target.
-UnscentedKF/fast:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/build
-.PHONY : UnscentedKF/fast
+particle_filter/fast:
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/build
+.PHONY : particle_filter/fast
 
 src/main.o: src/main.cpp.o
 
@@ -129,7 +129,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.o
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -138,7 +138,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.i
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -147,62 +147,35 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/main.cpp.s
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
-src/tools.o: src/tools.cpp.o
+src/particle_filter.o: src/particle_filter.cpp.o
 
-.PHONY : src/tools.o
-
-# target to build an object file
-src/tools.cpp.o:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.o
-.PHONY : src/tools.cpp.o
-
-src/tools.i: src/tools.cpp.i
-
-.PHONY : src/tools.i
-
-# target to preprocess a source file
-src/tools.cpp.i:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.i
-.PHONY : src/tools.cpp.i
-
-src/tools.s: src/tools.cpp.s
-
-.PHONY : src/tools.s
-
-# target to generate assembly for a file
-src/tools.cpp.s:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/tools.cpp.s
-.PHONY : src/tools.cpp.s
-
-src/ukf.o: src/ukf.cpp.o
-
-.PHONY : src/ukf.o
+.PHONY : src/particle_filter.o
 
 # target to build an object file
-src/ukf.cpp.o:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.o
-.PHONY : src/ukf.cpp.o
+src/particle_filter.cpp.o:
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/particle_filter.cpp.o
+.PHONY : src/particle_filter.cpp.o
 
-src/ukf.i: src/ukf.cpp.i
+src/particle_filter.i: src/particle_filter.cpp.i
 
-.PHONY : src/ukf.i
+.PHONY : src/particle_filter.i
 
 # target to preprocess a source file
-src/ukf.cpp.i:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.i
-.PHONY : src/ukf.cpp.i
+src/particle_filter.cpp.i:
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/particle_filter.cpp.i
+.PHONY : src/particle_filter.cpp.i
 
-src/ukf.s: src/ukf.cpp.s
+src/particle_filter.s: src/particle_filter.cpp.s
 
-.PHONY : src/ukf.s
+.PHONY : src/particle_filter.s
 
 # target to generate assembly for a file
-src/ukf.cpp.s:
-	$(MAKE) -f CMakeFiles/UnscentedKF.dir/build.make CMakeFiles/UnscentedKF.dir/src/ukf.cpp.s
-.PHONY : src/ukf.cpp.s
+src/particle_filter.cpp.s:
+	$(MAKE) -f CMakeFiles/particle_filter.dir/build.make CMakeFiles/particle_filter.dir/src/particle_filter.cpp.s
+.PHONY : src/particle_filter.cpp.s
 
 # Help Target
 help:
@@ -210,18 +183,15 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... UnscentedKF"
+	@echo "... edit_cache"
+	@echo "... particle_filter"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
-	@echo "... src/tools.o"
-	@echo "... src/tools.i"
-	@echo "... src/tools.s"
-	@echo "... src/ukf.o"
-	@echo "... src/ukf.i"
-	@echo "... src/ukf.s"
+	@echo "... src/particle_filter.o"
+	@echo "... src/particle_filter.i"
+	@echo "... src/particle_filter.s"
 .PHONY : help
 
 

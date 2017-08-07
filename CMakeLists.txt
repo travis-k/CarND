@@ -1,4 +1,4 @@
-project(UnscentedKF)
+project(PARTICLE_FILTER)
 
 cmake_minimum_required (VERSION 3.5)
 
@@ -7,7 +7,7 @@ add_definitions(-std=c++11)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-set(sources src/ukf.cpp src/main.cpp src/tools.cpp)
+set(sources src/particle_filter.cpp src/main.cpp)
 
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
@@ -21,6 +21,8 @@ link_directories(/usr/local/Cellar/libuv/1.11.0/lib)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 
-add_executable(UnscentedKF ${sources})
+add_executable(particle_filter ${sources})
 
-target_link_libraries(UnscentedKF z ssl uv uWS)
+
+target_link_libraries(particle_filter z ssl uv uWS)
+
