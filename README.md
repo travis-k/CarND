@@ -71,10 +71,18 @@ The goals / steps of this project are the following:
 * Reduce mean squared error of the filter below the necessary threshold
 * Identify the strengths and weaknesses of the lidar and radar data by isolating them and observing their error
 
-Project 6 - Extended Kalman Filter
+Project 7 - Unscented Kalman Filter
 ---
 The goals / steps of this project are the following:
 
 * Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
 * Reduce mean squared error of the filter below the necessary threshold
 * Compare the results of this filter with the EKF from the previous project
+
+Project 8 - Kidnapped Vehicle Project (Particle Filter)
+---
+The goals / steps of this project are the following:
+
+* Implement a particle filter to track a car, using known landmarks on a 2D map
+* Reduce the runtime and errors to below the threshold acceptable for this project
+
