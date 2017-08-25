@@ -17,14 +17,6 @@ public:
   double Ki;
   double Kd;
 
-
-  //  // 0 -> dKp, 1 -> dKd, 2 -> dKi
-  // double dp[3] = {0.01, 0.3, 0.0001};
-  // double best_error = 10000.0;
-  // int currIdx = 0;
-  // int step = 0;
-  // int updateCount = 0;
-
   /*
   * Constructor
   */
