@@ -13,6 +13,7 @@ cmake-3.8.1-Linux-x86_64.sh
 install-ubuntu.sh
 install-mac.sh
 
+Ipopt-3.12.1/
 
 #LaTeX 
 *.aux
