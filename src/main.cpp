@@ -217,6 +217,8 @@ double ref_vel = 0;
 
       auto s = hasData(data);
 
+      // NOTE: This model was adapted from the base provided in the Project Walkthrough and Q&A provided by Udacity. 
+
       if (s != "") {
         auto j = json::parse(s);
         
@@ -442,13 +444,6 @@ double ref_vel = 0;
           		next_x_vals.push_back(x_point);
           		next_y_vals.push_back(y_point);
           	}
-
-
-
-
-
-
-
 
           	// END
           	msgJson["next_x"] = next_x_vals;
