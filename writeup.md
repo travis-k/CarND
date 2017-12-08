@@ -5,7 +5,7 @@ See other branches for previous projects
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 [//]: # (Image References)
-[image1]: ./writeup_img/Capture.png "Success"
+[image1]: ./writeup_img/Capture.PNG "Success"
 
 This is an outline of my submission for the path planning project. All files can be found in my CarND repository. Some of the files given with the project were reorganized into subfolders.
 [https://github.com/travis-k/CarND.git](https://github.com/travis-k/CarND.git)
