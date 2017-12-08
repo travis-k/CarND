@@ -201,7 +201,7 @@ int main() {
   	map_waypoints_dy.push_back(d_y);
   }
 
-// Start in lane 1 (right lane)
+// Start in lane 1 (middle lane)
 int lane = 1;
 // Speed limit (mph)
 double ref_vel = 0; 
@@ -255,11 +255,50 @@ double ref_vel = 0;
 
          	bool too_close = false;
 
+         	bool change_left_safe = true;
+         	bool change_right_safe = true;
+
          	//find ref_v to use
          	for(int i = 0; i < sensor_fusion.size(); i++)
          	{
-         		//car in my lane
          		float d = sensor_fusion[i][6];
+         		// Check for a gap to the left
+         		if(d < (2+4*(lane-1)+2) && d > (2+4*(lane-1)-2) && lane > 0)
+         		{
+         			double vx = sensor_fusion[i][3];
+         			double vy = sensor_fusion[i][4];
+
+         			double check_speed = sqrt(vx*vx + vy*vy);
+         			double check_car_s = sensor_fusion[i][5];
+         			// if using previous points can project s value out
+         			check_car_s += ((double)prev_size*0.02*check_speed);
+
+         			// check s values greater than mine and s gap
+         			if(abs(car_s - check_car_s) < 40)
+         			{
+						change_left_safe = false;
+         			}
+         		}
+         		
+         		// Check for a gap to the right
+         		if(d < (2+4*(lane+1)+2) && d > (2+4*(lane+1)-2) && lane < 2)
+         		{
+         			double vx = sensor_fusion[i][3];
+         			double vy = sensor_fusion[i][4];
+
+         			double check_speed = sqrt(vx*vx + vy*vy);
+         			double check_car_s = sensor_fusion[i][5];
+         			// if using previous points can project s value out
+         			check_car_s += ((double)prev_size*0.02*check_speed);
+
+         			// check s values greater than mine and s gap
+         			if(abs(car_s - check_car_s) < 40)
+         			{
+						change_right_safe = false;
+         			}
+         		}
+
+         		//car in my lane
          		if(d < (2+4*lane+2) && d > (2+4*lane-2))
          		{
          			double vx = sensor_fusion[i][3];
@@ -275,6 +314,16 @@ double ref_vel = 0;
          			if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
          			{
          				too_close = true;
+
+         				if(change_left_safe && lane > 0)
+         				{
+         					lane = lane - 1;
+         				}
+         				else if(change_right_safe && lane < 2)
+         				{
+         					lane = lane + 1;
+         				}
+
          			}
          		}
          	}
