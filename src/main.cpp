@@ -204,7 +204,7 @@ int main() {
 // Start in lane 1 (right lane)
 int lane = 1;
 // Speed limit (mph)
-double ref_vel = 49.5; 
+double ref_vel = 0; 
 
   h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy,&lane](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -246,6 +246,47 @@ double ref_vel = 49.5;
           	int prev_size = previous_path_x.size();
 
           	json msgJson;
+
+
+          	if(prev_size > 0)
+         	{
+         		car_s = end_path_s;
+         	}
+
+         	bool too_close = false;
+
+         	//find ref_v to use
+         	for(int i = 0; i < sensor_fusion.size(); i++)
+         	{
+         		//car in my lane
+         		float d = sensor_fusion[i][6];
+         		if(d < (2+4*lane+2) && d > (2+4*lane-2))
+         		{
+         			double vx = sensor_fusion[i][3];
+         			double vy = sensor_fusion[i][4];
+
+         			double check_speed = sqrt(vx*vx + vy*vy);
+         			double check_car_s = sensor_fusion[i][5];
+
+         			// if using previous points can project s value out
+         			check_car_s += ((double)prev_size*0.02*check_speed);
+
+         			// check s values greater than mine and s gap
+         			if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
+         			{
+         				too_close = true;
+         			}
+         		}
+         	}
+
+         	if(too_close)
+         	{
+         		ref_vel -= .224;
+         	}
+         	else if (ref_vel < 49.5)
+         	{
+         		ref_vel += .224;
+         	}
 
           	// Create a list of widely spaced waypoints in (x,y) to interpolate for our path
           	vector<double> ptsx;
@@ -351,8 +392,14 @@ double ref_vel = 49.5;
 
           		next_x_vals.push_back(x_point);
           		next_y_vals.push_back(y_point);
-
           	}
+
+
+
+
+
+
+
 
           	// END
           	msgJson["next_x"] = next_x_vals;
