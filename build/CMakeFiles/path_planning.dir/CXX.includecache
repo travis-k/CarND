@@ -849,4 +849,16 @@ Eigen-3.3/Eigen/QR
 /mnt/c/Users/Travis/Desktop/GITUdacity/CarND/src/Eigen-3.3/Eigen/QR
 json.hpp
 /mnt/c/Users/Travis/Desktop/GITUdacity/CarND/src/json.hpp
+spline.h
+/mnt/c/Users/Travis/Desktop/GITUdacity/CarND/src/spline.h
+
+/mnt/c/Users/Travis/Desktop/GITUdacity/CarND/src/spline.h
+cstdio
+-
+cassert
+-
+vector
+-
+algorithm
+-
 
