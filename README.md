@@ -36,6 +36,8 @@ Using the above system, the vehicle is capable of traveling around the track wit
 
 ![Success of the Path Planning Model][image1]
 
+EDITS: A crash happened in the project evaluation. At the advice of the reviewer, I improved the safe lane change gap distances. I also included a timer that should allow one lane change decision every 10 seconds, as I saw the car do 2 lane changes in succession and that exceeded the acceleration limit. I tested the program a few more times and didn't see any incidents. 
+
 ### Future Work
 Below are ideas I will implement to improve this path planner.
 
