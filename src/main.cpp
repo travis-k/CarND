@@ -206,7 +206,9 @@ int lane = 1;
 // Speed limit (mph)
 double ref_vel = 0; 
 
-  h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy,&lane](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+double last_lane_change = 0;
+
+  h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy,&lane,&last_lane_change](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -276,7 +278,8 @@ double ref_vel = 0;
          			check_car_s += ((double)prev_size*0.02*check_speed);
 
          			// check s values greater than mine and s gap
-         			if(abs(car_s - check_car_s) < 40)
+         			// if(abs(car_s - check_car_s) < 40
+         			if((check_car_s <= car_s && (check_car_s > car_s - 20)) || (check_car_s >= car_s && (check_car_s < car_s + 30)))
          			{
 						change_left_safe = false;
          			}
@@ -294,7 +297,8 @@ double ref_vel = 0;
          			check_car_s += ((double)prev_size*0.02*check_speed);
 
          			// check s values greater than mine and s gap
-         			if(abs(car_s - check_car_s) < 40)
+         			// if(abs(car_s - check_car_s) < 40)
+         			if((check_car_s <= car_s && (check_car_s > car_s - 20)) || (check_car_s >= car_s && (check_car_s < car_s + 30)))
          			{
 						change_right_safe = false;
          			}
@@ -317,18 +321,22 @@ double ref_vel = 0;
          			{
          				too_close = true;
 
-         				if(change_left_safe && lane > 0)
+         				if(change_left_safe && lane > 0 && last_lane_change > 500)
          				{
          					lane = lane - 1;
+         					last_lane_change = 0;
          				}
-         				else if(change_right_safe && lane < 2)
+         				else if(change_right_safe && lane < 2 && last_lane_change > 500)
          				{
          					lane = lane + 1;
+         					last_lane_change = 0;
          				}
 
          			}
          		}
          	}
+
+         	last_lane_change += 1;
 
          	if(too_close)
          	{
