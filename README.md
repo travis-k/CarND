@@ -1,84 +1,3 @@
-Outline of Projects in this Repository
----
-
-Project 1 - Lane Detection
----
-https://github.com/travis-k/CarND/tree/P1-Lane_Detection
-
-The goals / steps of this project are the following:
-
-* Make a pipeline that finds lane lines on the road (image or video) using OpenCV
-* Summarize the results with a written report
-
-Project 2 - Traffic Sign Classifier
----
-https://github.com/travis-k/CarND/tree/P2-Traffic_Sign_Classifier
-
-The goals / steps of this project are the following:
-
-* Load the data set (see below for links to the project data set)
-* Explore, summarize and visualize the data set
-* Design, train and test a model architecture
-* Use the model to make predictions on new images
-* Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
-
-Project 3 - Behavioral Cloning
----
-https://github.com/travis-k/CarND/tree/P3-Behavioral_Cloning
-
-The goals / steps of this project are the following:
-
-* Use the simulator to collect data of good driving behavior
-* Build a convolution neural network in Keras that predicts steering angles from images
-* Train and validate the model with a training and validation set
-* Test that the model successfully drives around track one without leaving the road
-* Summarize the results with a written report
-
-Project 4 - Advanced Lane Detection
----
-https://github.com/travis-k/CarND/tree/P4-Advanced_Lane_Detection
-
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
-
-Project 5 - Vehicle Tracking
----
-https://github.com/travis-k/CarND/blob/P5-Vehicle_tracking/README.md
-
-The goals / steps of this project are the following:
-
-* Perform a Histogram of Oriented Gradients (HOG) feature extraction on a labeled training set of images and train a classifier Linear SVM classifier
-* Optionally, you can also apply a color transform and append binned color features, as well as histograms of color, to your HOG feature vector. 
-* Note: for those first two steps don't forget to normalize your features and randomize a selection for training and testing.
-* Implement a sliding-window technique and use your trained classifier to search for vehicles in images.
-* Run your pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and create a heat map of recurring detections frame by frame to reject outliers and follow detected vehicles.
-* Estimate a bounding box for vehicles detected.
-
-Project 6 - Extended Kalman Filter
----
-The goals / steps of this project are the following:
-
-* Implement an extended Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
-* Reduce mean squared error of the filter below the necessary threshold
-* Identify the strengths and weaknesses of the lidar and radar data by isolating them and observing their error
-
-Project 6 - Extended Kalman Filter
----
-The goals / steps of this project are the following:
-
-* Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
-* Reduce mean squared error of the filter below the necessary threshold
-* Compare the results of this filter with the EKF from the previous project
-
 Project 7 - Unscented Kalman Filter
 ---
 The goals / steps of this project are the following:
@@ -86,3 +5,22 @@ The goals / steps of this project are the following:
 * Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
 * Reduce mean squared error of the filter below the necessary threshold
 * Compare the results of this filter with the EKF from the previous project
+
+
+Pipeline
+---
+* The UKF follows the method described in the lessons
+* Initial estimates use the first measurement location, and assign a speed of zero as with the EKF project
+* Corrections are added to avoid issues in dividing by zero
+* Corrections are made to angles, ensuring they are normalized to -pi to pi
+* The parameters were tuned manually by observing their effects on RMSE
+* The NIS method will later be used to improve the set parameters
+
+Results 
+---
+* The implemented unscented Kalman filter for both datasets one and two are shown below. For the first dataset, the errors are significantly lower for the x-component of the velocity.
+* The RMSE values for the UKF are lower than those of the EKF across the board, for the same datasets
+* This change in RMSE is likely due to the fact that the car is constantly turning, a situation in which the EKF has issues due to its linearized rate of change estimation  
+
+![alt text](/writeup_img/Dataset-1.PNG "Dataset 1")
+![alt text](/writeup_img/Dataset-2.PNG "Dataset 2")
