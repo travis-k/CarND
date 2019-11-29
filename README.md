@@ -1,94 +1,21 @@
-Outline of Projects in this Repository
----
-
-Project 1 - Lane Detection
----
-https://github.com/travis-k/CarND/tree/P1-Lane_Detection
-
-The goals / steps of this project are the following:
-
-* Make a pipeline that finds lane lines on the road (image or video) using OpenCV
-* Summarize the results with a written report
-
-Project 2 - Traffic Sign Classifier
----
-https://github.com/travis-k/CarND/tree/P2-Traffic_Sign_Classifier
-
-The goals / steps of this project are the following:
-
-* Load the data set (see below for links to the project data set)
-* Explore, summarize and visualize the data set
-* Design, train and test a model architecture
-* Use the model to make predictions on new images
-* Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
-
-Project 3 - Behavioral Cloning
----
-https://github.com/travis-k/CarND/tree/P3-Behavioral_Cloning
-
-The goals / steps of this project are the following:
-
-* Use the simulator to collect data of good driving behavior
-* Build a convolution neural network in Keras that predicts steering angles from images
-* Train and validate the model with a training and validation set
-* Test that the model successfully drives around track one without leaving the road
-* Summarize the results with a written report
-
-Project 4 - Advanced Lane Detection
----
-https://github.com/travis-k/CarND/tree/P4-Advanced_Lane_Detection
-
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
-
-Project 5 - Vehicle Tracking
----
-https://github.com/travis-k/CarND/blob/P5-Vehicle_tracking/README.md
-
-The goals / steps of this project are the following:
-
-* Perform a Histogram of Oriented Gradients (HOG) feature extraction on a labeled training set of images and train a classifier Linear SVM classifier
-* Optionally, you can also apply a color transform and append binned color features, as well as histograms of color, to your HOG feature vector. 
-* Note: for those first two steps don't forget to normalize your features and randomize a selection for training and testing.
-* Implement a sliding-window technique and use your trained classifier to search for vehicles in images.
-* Run your pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and create a heat map of recurring detections frame by frame to reject outliers and follow detected vehicles.
-* Estimate a bounding box for vehicles detected.
-
-Project 6 - Extended Kalman Filter
+Project 10 - MPC
 ---
 The goals / steps of this project are the following:
 
-* Implement an extended Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
-* Reduce mean squared error of the filter below the necessary threshold
-* Identify the strengths and weaknesses of the lidar and radar data by isolating them and observing their error
-
-Project 7 - Unscented Kalman Filter
----
-The goals / steps of this project are the following:
-
-* Implement an unscented Kalman filter in C++ to fuse lidar and radar inputs to track motion of a simulated vehicle in real-time
-* Reduce mean squared error of the filter below the necessary threshold
-* Compare the results of this filter with the EKF from the previous project
-
-Project 8 - Kidnapped Vehicle Project (Particle Filter)
----
-The goals / steps of this project are the following:
-
-* Implement a particle filter to track a car, using known landmarks on a 2D map
-* Reduce the runtime and errors to below the threshold acceptable for this project
-
-Project 9 - PID Controller
----
-The goals / steps of this project are the following:
-
-* Implement a PID controller for a car on a racetrack
+* Implement an MPC for a car on a racetrack
 * Ensure the car can travel around the track without hitting boundaries
+
+**Description of the Model **
+The controller was implemented as described throughout the lessons. The state is found. The constraints are set up in the solver with the provided lower and upper bounds. The simulation is run with the variables and constraints and their bounds, using the cost function. Different weights were implemented to the cost function to "tune" it to behave correctly. The solution is found which minimizes the cost function. 
+
+**Reasoning in Determining N and dt**
+The number of timestep size and timestep duration were tuned manually to allow the car to travel a lap of the track without leaving the road. With smaller or larger dt values, the car behaved erratically at times. A smaller dt provides the simulation with finer resolution, but requires larger N to achieve a good track fit to the path. With a large N, computation time increases. Increasing both N and dt allows the simulation to look farther down the road, but predicting more than a few seconds into the future is not necessarily important for the MPC.
+
+**Preprocessing of Waypoints**
+The waypoints are found using the global x and y location of the waypoints, and the angle psi. The distance to these waypoints from the vehicle is found, which effective centers the waypoints around the vehicle as the origin. These waypoints, with the vehicle at (0,0), are fitted with a third-order polynomial using polyfit, as was done in the lessons. 
+
+**Latency Handling**
+We run our simulation starting with the actuations from our previous timestep, which accounts for latency. This is in MPC.cpp, lines 102-105. This way, the results from the current simulation are fed back in to the next timesteps simulation. This is the same technique used in the lessons. 
+
+
+
